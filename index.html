@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vietnam 5N/6D · Glabol</title>
+<meta name="description" content="Send us your dates. We will handle the rest. Vietnam 5N/6D trips from ₹40,999 per person, international flights extra. 4.5★ on Google from 1,600+ reviews.">
+<meta name="theme-color" content="#2B1510">
+<meta property="og:title" content="Vietnam 5N/6D · Glabol">
+<meta property="og:description" content="Send us your dates. We will handle the rest. Trips from ₹40,999 per person, international flights extra.">
+<meta property="og:image" content="assets/og-vietnam.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   SETTINGS: change these before you go live
+   ------------------------------------------------------------
+   WEBHOOK_URL  Where each lead is sent as JSON (your CRM's web-form
+                or webhook URL). Leave empty and the page runs in
+                preview mode: nothing is sent anywhere.
+   PIXEL_ID     Meta Pixel / dataset ID. Fires PageView on load and
+                Lead on submit (with an event_id for deduplication).
+   ============================================================ */
+window.GLABOL_FORM = {
+  WEBHOOK_URL: "",
+  PIXEL_ID: "4126422144254829",
+  FORM_NAME: "vietnam_5n6d_landing_v1",
+  WEBSITE_URL: "https://glabol.com",
+  PRIVACY_URL: "https://glabol.com/privacy-policy"
+};
+</script>
+
+<!-- Meta Pixel -->
+<script>
+(function(){
+  var id = window.GLABOL_FORM.PIXEL_ID;
+  if (!id) return;
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', id);
+  fbq('track', 'PageView');
+})();
+</script>
+
+<style>
+:root{
+  --ink:#2B1510;
+  --ink-2:#361C15;
+  --ink-3:#4A2A20;
+  --lantern:#C8331E;
+  --lantern-dark:#A92713;
+  --amber:#F08A24;
+  --cream:#F7EDE2;
+  --white:#FFFFFF;
+  --text:#FFFFFF;
+  --muted:rgba(255,255,255,.74);
+  --faint:rgba(255,255,255,.52);
+  --line:rgba(255,255,255,.22);
+  --line-strong:rgba(255,255,255,.42);
+  --glass:rgba(255,255,255,.07);
+  --glass-strong:rgba(255,255,255,.12);
+  --radius:16px;
+  --pad:clamp(16px,4.2vw,56px);
+  --head:"Inter Tight", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{
+  background:
+    radial-gradient(900px 520px at 0% -8%, rgba(240,138,36,.16), transparent 62%),
+    radial-gradient(760px 520px at 100% 108%, rgba(200,51,30,.24), transparent 60%),
+    var(--ink);
+  background-attachment:fixed;
+  color:var(--text);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit}
+a{color:inherit}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Layout ---------- */
+.app{
+  min-height:100vh;
+  min-height:100dvh;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+}
+@media (min-width:1000px){
+  .app{grid-template-columns:minmax(0,1fr) minmax(380px,42%)}
+}
+.form-side{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  min-height:100dvh;
+}
+
+/* ---------- Top bar ---------- */
+.progress{
+  position:fixed;left:0;top:0;height:3px;width:100%;
+  background:rgba(255,255,255,.08);z-index:20;
+  opacity:0;transition:opacity .3s;
+}
+.progress.is-on{opacity:1}
+.progress span{
+  display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--lantern),var(--amber));
+  transition:width .45s cubic-bezier(.2,.7,.2,1);
+}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px var(--pad) 0;
+}
+.logo{height:22px;width:auto}
+@media (min-width:700px){.logo{height:26px}}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 14px;border-radius:999px;
+  background:rgba(43,21,16,.28);
+  border:1.5px solid rgba(255,255,255,.35);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.01em;
+  white-space:nowrap;
+}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--amber);display:block}
+.step-count{font-family:var(--head);font-weight:500;font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---------- Screens ---------- */
+.stage{
+  flex:1;display:flex;align-items:center;
+  padding:20px var(--pad) 104px;
+}
+.screen{width:100%;max-width:640px}
+.screen.welcome{max-width:700px}
+@media (min-width:1000px){#topPill{display:none}}
+.screen[hidden]{display:none}
+.screen.anim-next{animation:inUp .5s cubic-bezier(.2,.7,.2,1) both}
+.screen.anim-back{animation:inDown .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes inUp{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+@keyframes inDown{from{opacity:0;transform:translateY(-34px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .screen.anim-next,.screen.anim-back{animation:none}
+  .progress span{transition:none}
+}
+
+/* ---------- Welcome ---------- */
+.welcome h1{
+  font-family:var(--head);font-weight:600;
+  font-size:clamp(30px,8.2vw,58px);
+  line-height:.98;letter-spacing:-.04em;
+  margin:18px 0 0;
+  text-wrap:balance;
+}
+.welcome h1 span{display:block}
+.welcome h1:focus{outline:none}
+.sub{
+  font-family:var(--head);font-weight:500;
+  font-size:clamp(17px,4.4vw,21px);
+  line-height:1.3;
+  color:rgba(255,255,255,.92);
+  margin:14px 0 0;
+  text-wrap:balance;
+}
+.welcome-photo{
+  position:relative;margin:20px 0 0;border-radius:20px;overflow:hidden;
+  aspect-ratio:16/10;background:var(--ink-3);
+}
+.welcome-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 72%}
+.welcome-photo picture,.photo-frame picture{display:contents}
+.welcome-photo::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(43,21,16,0) 55%,rgba(43,21,16,.55));
+  pointer-events:none;
+}
+@media (min-width:1000px){.welcome-photo{display:none}}
+.photo-chip{
+  position:absolute;left:12px;bottom:12px;z-index:2;
+  font-size:12px;font-weight:500;line-height:1.2;
+  padding:6px 10px;border-radius:999px;
+  background:rgba(43,21,16,.45);
+  border:1px solid rgba(255,255,255,.28);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:rgba(255,255,255,.95);
+}
+.checks{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.checks li{display:flex;gap:10px;align-items:flex-start;font-size:16px;color:rgba(255,255,255,.9)}
+.checks svg{flex:none;margin-top:2px}
+.facts{
+  margin:22px 0 0;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  border-radius:22px;
+  background:var(--glass);
+  border:1.5px solid rgba(255,255,255,.2);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  overflow:hidden;
+}
+.facts div{padding:12px 8px;text-align:center}
+.facts div+div{border-left:1px solid rgba(255,255,255,.16)}
+.facts b{display:block;font-family:var(--head);font-weight:700;font-size:clamp(18px,5vw,24px);letter-spacing:-.02em;line-height:1.1}
+.facts small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.cta-row{display:flex;align-items:center;gap:18px;margin:22px 0 0;flex-wrap:wrap}
+.cta{
+  display:inline-flex;align-items:center;gap:12px;
+  border:0;cursor:pointer;
+  background:var(--lantern);color:#fff;
+  font-family:var(--head);font-weight:600;font-size:18px;letter-spacing:-.01em;
+  padding:8px 8px 8px 22px;border-radius:999px;
+  min-height:56px;
+  box-shadow:0 10px 30px rgba(200,51,30,.35);
+  transition:background .2s, transform .15s;
+}
+.cta:hover{background:var(--lantern-dark)}
+.cta:active{transform:scale(.98)}
+.cta:focus-visible,.opt:focus-visible,.btn-ok:focus-visible,.nav-btn:focus-visible,.link-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.cta-ico{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.cta[disabled]{opacity:.7;cursor:progress}
+.reviews-note{font-size:14px;color:rgba(255,255,255,.9);line-height:1.3}
+.reviews-note b{font-family:var(--head)}
+.fine{margin:14px 0 0;font-size:13px;color:var(--faint)}
+.hint{font-size:13px;color:var(--faint)}
+.hint b{color:var(--muted);font-weight:600}
+@media (hover:none){.hint{display:none}}
+
+/* ---------- Questions ---------- */
+.q-num{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--head);font-weight:600;font-size:15px;color:var(--amber);
+  margin:0 0 10px;
+}
+.q-title{
+  font-family:var(--head);font-weight:600;
+  font-size:clamp(24px,6.4vw,38px);
+  line-height:1.12;letter-spacing:-.025em;
+  margin:0;outline:none;
+  text-wrap:balance;
+}
+.q-help{margin:10px 0 0;color:var(--muted);font-size:16px;max-width:52ch}
+.options{display:grid;gap:10px;margin:24px 0 0;max-width:500px}
+.opt{
+  display:flex;align-items:center;gap:12px;width:100%;
+  text-align:left;cursor:pointer;
+  padding:12px 14px;min-height:54px;border-radius:14px;
+  background:var(--glass);
+  border:1.5px solid var(--line);
+  font-size:17px;font-weight:500;line-height:1.25;
+  transition:background .15s,border-color .15s,transform .12s;
+}
+.opt:hover{background:var(--glass-strong);border-color:var(--line-strong)}
+.opt:active{transform:scale(.99)}
+.opt kbd{
+  flex:none;display:grid;place-items:center;
+  width:26px;height:26px;border-radius:7px;
+  border:1.5px solid var(--line-strong);
+  font-family:var(--head);font-size:12px;font-weight:600;
+  color:var(--muted);background:rgba(43,21,16,.4);
+}
+.opt .label{flex:1}
+.opt .tick{flex:none;opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s}
+.opt[aria-checked="true"]{background:var(--lantern);border-color:var(--lantern)}
+.opt[aria-checked="true"] kbd{background:#fff;color:var(--lantern);border-color:#fff}
+.opt[aria-checked="true"] .tick{opacity:1;transform:none}
+.opt.flash{animation:flash .32s ease}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.55}}
+
+.other-wrap{margin:12px 0 0;max-width:500px}
+.field{
+  width:100%;
+  background:transparent;border:0;border-bottom:2px solid var(--line-strong);
+  color:#fff;font-family:var(--head);font-weight:500;
+  font-size:clamp(22px,6vw,30px);
+  padding:10px 0 8px;border-radius:0;outline:none;
+  transition:border-color .2s;
+}
+.field::placeholder{color:rgba(255,255,255,.34)}
+.field:focus{border-bottom-color:var(--amber)}
+.field.small{font-size:20px}
+.text-wrap{margin:26px 0 0;max-width:500px}
+.phone-row{display:flex;align-items:flex-end;gap:12px}
+.prefix{
+  flex:none;font-family:var(--head);font-weight:500;
+  font-size:clamp(22px,6vw,30px);color:var(--muted);
+  padding:10px 0 8px;border-bottom:2px solid var(--line);
+}
+.q-actions{display:flex;align-items:center;gap:14px;margin:26px 0 0;flex-wrap:wrap}
+.btn-ok{
+  display:inline-flex;align-items:center;gap:8px;
+  border:0;cursor:pointer;border-radius:12px;
+  background:var(--lantern);color:#fff;
+  font-family:var(--head);font-weight:600;font-size:17px;
+  padding:12px 20px;min-height:48px;
+  transition:background .2s;
+}
+.btn-ok:hover{background:var(--lantern-dark)}
+.q-error{
+  margin:14px 0 0;min-height:0;
+  display:none;align-items:center;gap:8px;
+  font-size:14px;font-weight:500;
+  color:#fff;background:rgba(200,51,30,.28);
+  border:1px solid rgba(200,51,30,.7);
+  padding:8px 12px;border-radius:10px;width:fit-content;
+}
+.q-error.is-on{display:inline-flex}
+.consent{margin:18px 0 0;font-size:13px;line-height:1.45;color:var(--faint);max-width:52ch}
+.consent a{color:var(--muted)}
+.final-actions{margin-top:22px}
+
+/* ---------- Thank you ---------- */
+.done-badge{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--lantern);display:grid;place-items:center;
+  box-shadow:0 0 0 8px rgba(200,51,30,.18);
+}
+.done h2{
+  font-family:var(--head);font-weight:600;
+  font-size:clamp(28px,7.4vw,48px);line-height:1.02;letter-spacing:-.035em;
+  margin:22px 0 0;outline:none;text-wrap:balance;
+}
+.done p.lead{font-size:18px;color:rgba(255,255,255,.88);margin:14px 0 0;max-width:46ch}
+.summary{
+  margin:22px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:rgba(255,255,255,.14);border-radius:16px;overflow:hidden;max-width:520px;
+}
+.summary div{background:var(--ink-2);padding:12px 14px}
+.summary dt{font-size:12px;color:var(--faint)}
+.summary dd{margin:2px 0 0;font-family:var(--head);font-weight:600;font-size:16px}
+.review{
+  margin:22px 0 0;max-width:520px;
+  background:#fff;color:#1f1f1f;border-radius:18px;padding:16px 18px;
+}
+.review .stars{color:#F4B400;letter-spacing:2px;font-size:15px}
+.review p{margin:6px 0 0;font-size:15px;line-height:1.45}
+.review cite{display:block;margin-top:8px;font-style:normal;font-size:13px;color:#5f6368}
+.link-btn{
+  display:inline-flex;align-items:center;gap:8px;margin:22px 0 0;
+  padding:12px 18px;border-radius:12px;border:1.5px solid var(--line-strong);
+  text-decoration:none;font-family:var(--head);font-weight:600;
+}
+.link-btn:hover{background:var(--glass)}
+
+/* ---------- Bottom nav ---------- */
+.stepnav{
+  position:fixed;right:var(--pad);bottom:18px;z-index:15;
+  display:flex;gap:2px;border-radius:12px;overflow:hidden;
+  background:var(--lantern);
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.stepnav[hidden]{display:none}
+@media (min-width:1000px){.stepnav{right:calc(42% + var(--pad))}}
+.nav-btn{
+  width:44px;height:40px;border:0;cursor:pointer;
+  background:var(--lantern);color:#fff;display:grid;place-items:center;
+}
+.nav-btn:hover{background:var(--lantern-dark)}
+.nav-btn[disabled]{opacity:.45;cursor:default}
+
+/* ---------- Photo side (desktop) ---------- */
+.photo-side{display:none}
+@media (min-width:1000px){
+  .photo-side{
+    display:block;position:sticky;top:0;height:100vh;height:100dvh;
+    padding:16px 16px 16px 0;
+  }
+  .photo-frame{position:relative;height:100%;border-radius:28px;overflow:hidden;background:var(--ink-3)}
+  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:50% 70%}
+  .photo-frame::before{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(43,21,16,.35),rgba(43,21,16,0) 26%,rgba(43,21,16,0) 70%,rgba(43,21,16,.6));
+  }
+  .photo-frame .photo-chip{left:18px;bottom:18px;font-size:13px}
+  .photo-frame .pill{position:absolute;left:18px;top:18px;z-index:2}
+}
+
+/* ---------- Preview notice ---------- */
+.preview-note{
+  position:fixed;left:12px;bottom:12px;z-index:30;
+  font-size:12px;line-height:1.3;max-width:min(320px,calc(100vw - 140px));
+  padding:8px 10px;border-radius:10px;
+  background:#fff;color:#2B1510;box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+.preview-note b{color:var(--lantern)}
+</style>
+</head>
+<body>
+<noscript><p style="padding:24px">Please turn on JavaScript to fill in this form.</p></noscript>
+
+<div class="progress" id="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+<div class="app">
+  <div class="form-side">
+    <header class="topbar">
+      <img class="logo" src="assets/glabol-logo-white.png" alt="Glabol" width="120" height="26">
+      <span class="pill" id="topPill"><i></i>Vietnam · 5N/6D</span>
+      <span class="step-count" id="stepCount" hidden></span>
+    </header>
+
+    <main class="stage" id="stage">
+      <!-- Welcome -->
+      <section class="screen welcome" id="screen-0" aria-labelledby="welcomeTitle">
+        <h1 id="welcomeTitle" tabindex="-1"><span>Going Vietnam?</span> <span>Leave the planning to us.</span></h1>
+        <p class="sub">Send us your dates. We will handle the rest.</p>
+
+        <figure class="welcome-photo">
+          <picture>
+            <source media="(max-width:999px)" srcset="assets/vietnam-ba-na-group.jpg">
+            <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="A Glabol travel group posing together at Ba Na Hills, Vietnam" width="1400" height="788" fetchpriority="high">
+          </picture>
+          <figcaption class="photo-chip">Glabol travellers at Ba Na Hills, Vietnam</figcaption>
+        </figure>
+
+        <ul class="checks">
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Day-by-day 5N/6D Vietnam itinerary</li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Full cost for your dates and group</li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>What's included, and what's not, before you pay</li>
+        </ul>
+
+        <div class="facts" role="list">
+          <div role="listitem"><b>₹40,999</b><small>per person</small></div>
+          <div role="listitem"><b>5N/6D</b><small>Vietnam</small></div>
+          <div role="listitem"><b>4.5★</b><small>Google rating</small></div>
+        </div>
+
+        <div class="cta-row">
+          <button class="cta" id="startBtn" type="button">Get my Vietnam plan
+            <span class="cta-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="#2B1510" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+          <span class="reviews-note"><b>1,600+</b><br>reviews</span>
+        </div>
+        <p class="fine">International flights extra · 9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
+      </section>
+
+      <!-- Questions are added here by the script -->
+
+      <!-- Thank you -->
+      <section class="screen done" id="screen-done" hidden aria-labelledby="doneTitle">
+        <div class="done-badge" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30"><path d="M8 15.5l4.6 4.5L22.5 10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h2 id="doneTitle" tabindex="-1">Got it. We're on your Vietnam plan.</h2>
+        <p class="lead">Our Vietnam team will call you in the time slot you picked. Keep your dates handy.</p>
+        <dl class="summary" id="summary"></dl>
+        <figure class="review" style="margin-left:0;margin-right:0">
+          <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p>“Everything was planned perfectly, making our journey smooth…”</p>
+          <cite>Sunil R. · Google review</cite>
+        </figure>
+        <a class="link-btn" id="siteLink" href="https://glabol.com">View website
+          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </section>
+    </main>
+
+    <nav class="stepnav" id="stepnav" hidden aria-label="Question navigation">
+      <button class="nav-btn" id="prevBtn" type="button" aria-label="Previous question"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 10l4.5-4.5 4.5 4.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="nav-btn" id="nextBtn" type="button" aria-label="Next question"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5 4.5-4.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </nav>
+  </div>
+
+  <aside class="photo-side" aria-hidden="true">
+    <div class="photo-frame">
+      <picture>
+        <source media="(min-width:1000px)" srcset="assets/vietnam-ha-long-deck.jpg">
+        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" width="1000" height="1778">
+      </picture>
+      <span class="pill"><i></i>Vietnam · 5N/6D</span>
+      <span class="photo-chip">Glabol travellers on Ha Long Bay</span>
+    </div>
+  </aside>
+</div>
+
+<div class="preview-note" id="previewNote" hidden><b>Preview mode.</b> Answers aren't sent anywhere until WEBHOOK_URL is set.</div>
+
+<div class="visually-hidden" aria-live="polite" id="live"></div>
+
+<script>
+(function(){
+  "use strict";
+  var CFG = window.GLABOL_FORM || {};
+
+  var QUESTIONS = [
+    { id:"travel_month", type:"choice", title:"When are you planning to go?",
+      help:"Pick the closest month. A rough plan is fine.",
+      options:["Nov 2026","Dec 2026","Jan 2027","Feb–Mar 2027","Apr 2027 or later","Not decided yet"] },
+    { id:"travellers", type:"choice", title:"How many people are travelling?",
+      options:["Just me","2","3–5","6 or more"] },
+    { id:"budget_pp", type:"choice", title:"What's your budget per person?",
+      help:"Not counting international flights. Our 5N/6D trips start at ₹40,999 per person.",
+      options:["Under ₹40,000","₹40,000–₹60,000","₹60,000–₹90,000","Above ₹90,000"] },
+    { id:"passport", type:"choice", title:"Does everyone have a passport valid for 6+ months?",
+      options:["Yes, all set","Someone is applying or renewing","Not yet"] },
+    { id:"booking", type:"choice", title:"When do you want to book?",
+      options:["This week","This month","In 1–3 months","Just checking prices"] },
+    { id:"from_city", type:"choice", title:"Where will you fly from?",
+      options:["Delhi NCR","Mumbai","Bengaluru","Chennai","Hyderabad","Kolkata","Other city"], other:"Other city" },
+    { id:"call_time", type:"choice", title:"Best time to call you?",
+      help:"Our Vietnam team will call you in this slot.",
+      options:["10am–1pm","1pm–4pm","4pm–7pm","7pm–9pm"] },
+    { id:"full_name", type:"text", title:"What's your full name?", placeholder:"Type your name" },
+    { id:"phone", type:"phone", title:"Thanks{first}. What's your phone number?",
+      help:"We'll call you on this number in the slot you picked." }
+  ];
+  var TOTAL = QUESTIONS.length;
+  var LETTERS = "ABCDEFGHIJ";
+
+  var answers = {};
+  var otherCity = "";
+  var current = 0;          // 0 = welcome, 1..TOTAL = questions, TOTAL+1 = done
+  var submitting = false;
+  var advanceTimer = null;
+
+  var stage = document.getElementById("stage");
+  var doneScreen = document.getElementById("screen-done");
+  var progress = document.getElementById("progress");
+  var bar = document.getElementById("progressBar");
+  var stepCount = document.getElementById("stepCount");
+  var topPill = document.getElementById("topPill");
+  var stepnav = document.getElementById("stepnav");
+  var prevBtn = document.getElementById("prevBtn");
+  var nextBtn = document.getElementById("nextBtn");
+  var live = document.getElementById("live");
+
+  if (!CFG.WEBHOOK_URL) document.getElementById("previewNote").hidden = false;
+  if (CFG.WEBSITE_URL) document.getElementById("siteLink").href = CFG.WEBSITE_URL;
+
+  /* ---------- Build question screens ---------- */
+  var ARROW = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var TICK = '<svg class="tick" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 9.4l3.2 3.1L14 5.7" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CTA_ICO = '<span class="cta-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="#2B1510" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  QUESTIONS.forEach(function(q, i){
+    var n = i + 1;
+    var s = document.createElement("section");
+    s.className = "screen q";
+    s.id = "screen-" + n;
+    s.hidden = true;
+    s.setAttribute("aria-labelledby", "q" + n + "-title");
+    var html = '<p class="q-num"><span>' + n + '</span>' + ARROW + '</p>' +
+      '<h2 class="q-title" id="q' + n + '-title" tabindex="-1">' + esc(q.title.replace("{first}", "")) + '</h2>' +
+      (q.help ? '<p class="q-help" id="q' + n + '-help">' + esc(q.help) + '</p>' : '');
+
+    if (q.type === "choice") {
+      html += '<div class="options" role="radiogroup" aria-labelledby="q' + n + '-title"' + (q.help ? ' aria-describedby="q' + n + '-help"' : '') + '>';
+      q.options.forEach(function(opt, k){
+        html += '<button type="button" class="opt" role="radio" aria-checked="false" data-q="' + q.id + '" data-value="' + esc(opt) + '">' +
+          '<kbd aria-hidden="true">' + LETTERS[k] + '</kbd><span class="label">' + esc(opt) + '</span>' + TICK + '</button>';
+      });
+      html += '</div>';
+      if (q.other) {
+        html += '<div class="other-wrap" hidden><label class="visually-hidden" for="otherCity">Your city</label>' +
+          '<input class="field small" id="otherCity" type="text" autocomplete="address-level2" placeholder="Type your city" maxlength="60"></div>';
+      }
+      html += '<div class="q-actions"' + (q.other ? '' : ' hidden') + '><button type="button" class="btn-ok" data-action="next">OK' + TICK.replace('class="tick"', '') + '</button><span class="hint">press <b>Enter ↵</b></span></div>';
+    } else if (q.type === "text") {
+      html += '<div class="text-wrap"><label class="visually-hidden" for="f-' + q.id + '">' + esc(q.title) + '</label>' +
+        '<input class="field" id="f-' + q.id + '" type="text" autocomplete="name" autocapitalize="words" placeholder="' + esc(q.placeholder) + '" maxlength="80"></div>' +
+        '<div class="q-actions"><button type="button" class="btn-ok" data-action="next">OK</button><span class="hint">press <b>Enter ↵</b></span></div>';
+    } else if (q.type === "phone") {
+      html += '<div class="text-wrap phone-row"><span class="prefix" aria-hidden="true">+91</span>' +
+        '<label class="visually-hidden" for="f-phone">Phone number, 10 digits</label>' +
+        '<input class="field" id="f-phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="98765 43210" maxlength="16"></div>' +
+        '<p class="consent">By tapping Get my Vietnam plan, you agree that Glabol can call or WhatsApp you about this trip. <a href="' + esc(CFG.PRIVACY_URL || "#") + '" target="_blank" rel="noopener">Privacy policy</a></p>' +
+        '<div class="q-actions final-actions"><button type="button" class="cta" id="submitBtn" data-action="submit">Get my Vietnam plan' + CTA_ICO + '</button><span class="hint">press <b>Enter ↵</b></span></div>';
+    }
+    html += '<p class="q-error" role="alert" id="q' + n + '-error"></p>';
+    s.innerHTML = html;
+    stage.insertBefore(s, doneScreen);
+  });
+
+  function screenEl(i){ return i > TOTAL ? doneScreen : document.getElementById("screen-" + i); }
+
+  /* ---------- Navigation ---------- */
+  function go(to, dir){
+    if (to === current) return;
+    clearTimeout(advanceTimer);
+    var from = screenEl(current), next = screenEl(to);
+    from.hidden = true;
+    from.classList.remove("anim-next","anim-back");
+    next.hidden = false;
+    next.classList.remove("anim-next","anim-back");
+    void next.offsetWidth;
+    next.classList.add(dir === "back" ? "anim-back" : "anim-next");
+    current = to;
+    updateChrome();
+    clearError(to);
+
+    var q = QUESTIONS[to - 1];
+    if (q && q.type === "phone") {
+      var first = (answers.full_name || "").trim().split(/\s+/)[0] || "";
+      document.getElementById("q" + to + "-title").textContent = q.title.replace("{first}", first ? ", " + first : "");
+    }
+    window.scrollTo(0, 0);
+    // Focus: inputs get focus straight away; otherwise the heading, for screen readers
+    var input = next.querySelector('input.field:not([type=hidden])');
+    var otherWrap = next.querySelector(".other-wrap");
+    if (input && !(otherWrap && otherWrap.hidden && otherWrap.contains(input))) {
+      setTimeout(function(){ input.focus({preventScroll:true}); }, 60);
+    } else {
+      var h = next.querySelector("h1,h2");
+      if (h) h.focus({preventScroll:true});
+    }
+    if (to >= 1 && to <= TOTAL) live.textContent = "Question " + to + " of " + TOTAL;
+  }
+
+  function updateChrome(){
+    var inQs = current >= 1 && current <= TOTAL;
+    progress.classList.toggle("is-on", current >= 1);
+    var answered = Math.min(current - 1, TOTAL);
+    bar.style.width = (current > TOTAL ? 100 : Math.max(0, answered) / TOTAL * 100) + "%";
+    stepCount.hidden = !inQs;
+    topPill.hidden = inQs;
+    stepCount.textContent = inQs ? current + " of " + TOTAL : "";
+    stepnav.hidden = !inQs;
+    prevBtn.disabled = current <= 1;
+    nextBtn.disabled = !inQs || !isAnswered(QUESTIONS[current - 1]);
+  }
+
+  /* ---------- Answers & validation ---------- */
+  function normPhone(v){
+    var d = String(v || "").replace(/\D/g, "");
+    if (d.length === 12 && d.indexOf("91") === 0) d = d.slice(2);
+    if (d.length === 11 && d.charAt(0) === "0") d = d.slice(1);
+    return d;
+  }
+  function isAnswered(q){
+    if (!q) return false;
+    if (q.type === "choice") {
+      if (!answers[q.id]) return false;
+      if (q.other && answers[q.id] === q.other) return otherCity.trim().length >= 2;
+      return true;
+    }
+    if (q.type === "text") return (answers[q.id] || "").trim().length >= 2;
+    if (q.type === "phone") return /^[6-9]\d{9}$/.test(normPhone(answers.phone));
+    return false;
+  }
+  function errorFor(q){
+    if (q.type === "choice") {
+      if (q.other && answers[q.id] === q.other) return "Please type your city.";
+      return "Please pick an option.";
+    }
+    if (q.type === "text") return "Please type your full name.";
+    if (q.type === "phone") return "Please enter a 10-digit mobile number.";
+    return "Please answer to continue.";
+  }
+  function showError(i, msg){
+    var e = document.getElementById("q" + i + "-error");
+    if (!e) return;
+    e.textContent = msg; e.classList.add("is-on");
+  }
+  function clearError(i){
+    var e = document.getElementById("q" + i + "-error");
+    if (e) { e.textContent = ""; e.classList.remove("is-on"); }
+  }
+
+  function next(){
+    if (current === 0) { go(1, "next"); return; }
+    if (current > TOTAL) return;
+    var q = QUESTIONS[current - 1];
+    if (!isAnswered(q)) { showError(current, errorFor(q)); return; }
+    if (q.type === "phone") { submit(); return; }
+    go(current + 1, "next");
+  }
+  function prev(){ if (current > 1 && current <= TOTAL) go(current - 1, "back"); }
+
+  function choose(btn){
+    var qid = btn.getAttribute("data-q");
+    var q = QUESTIONS.filter(function(x){ return x.id === qid; })[0];
+    var group = btn.parentNode;
+    Array.prototype.forEach.call(group.querySelectorAll(".opt"), function(b){ b.setAttribute("aria-checked", b === btn ? "true" : "false"); });
+    btn.classList.remove("flash"); void btn.offsetWidth; btn.classList.add("flash");
+    answers[qid] = btn.getAttribute("data-value");
+    clearError(current);
+    var scr = screenEl(current);
+    var otherWrap = scr.querySelector(".other-wrap");
+    if (q.other) {
+      var isOther = answers[qid] === q.other;
+      otherWrap.hidden = !isOther;
+      if (isOther) { setTimeout(function(){ document.getElementById("otherCity").focus(); }, 30); updateChrome(); return; }
+    }
+    var actions = scr.querySelector(".q-actions");
+    if (actions) actions.hidden = false;
+    updateChrome();
+    clearTimeout(advanceTimer);
+    var at = current;
+    advanceTimer = setTimeout(function(){ if (current === at) next(); }, 420);
+  }
+
+  /* ---------- Events ---------- */
+  document.getElementById("startBtn").addEventListener("click", function(){ go(1, "next"); });
+  prevBtn.addEventListener("click", prev);
+  nextBtn.addEventListener("click", next);
+
+  stage.addEventListener("click", function(e){
+    var opt = e.target.closest(".opt");
+    if (opt) { choose(opt); return; }
+    var act = e.target.closest("[data-action]");
+    if (act) { e.preventDefault(); next(); }
+  });
+
+  stage.addEventListener("input", function(e){
+    var t = e.target;
+    if (t.id === "otherCity") otherCity = t.value;
+    else if (t.id === "f-full_name") answers.full_name = t.value;
+    else if (t.id === "f-phone") answers.phone = t.value;
+    clearError(current);
+    updateChrome();
+  });
+
+  document.addEventListener("keydown", function(e){
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+    var inField = e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA");
+    if (e.key === "Enter") {
+      // Buttons and links handle Enter themselves (native click)
+      if (e.target && (e.target.tagName === "BUTTON" || e.target.tagName === "A")) return;
+      if (current <= TOTAL) { e.preventDefault(); next(); }
+      return;
+    }
+    if (inField) return;
+    var q = QUESTIONS[current - 1];
+    if (q && q.type === "choice" && e.key.length === 1) {
+      var idx = LETTERS.indexOf(e.key.toUpperCase());
+      var opts = screenEl(current).querySelectorAll(".opt");
+      if (idx > -1 && idx < opts.length) { e.preventDefault(); choose(opts[idx]); }
+    }
+  });
+
+  /* ---------- Scoring (same rules as the Vietnam instant form) ---------- */
+  function score(a){
+    var travelOk = ["Nov 2026","Dec 2026","Jan 2027"].indexOf(a.travel_month) > -1;
+    var budgetOk = !!a.budget_pp && a.budget_pp !== "Under ₹40,000";
+    var passOk = a.passport === "Yes, all set";
+    var bookOk = ["This week","This month"].indexOf(a.booking) > -1;
+    var cold = a.budget_pp === "Under ₹40,000" || a.passport === "Not yet" ||
+      a.booking === "Just checking prices" ||
+      (a.travel_month === "Not decided yet" && a.booking === "In 1–3 months");
+    if (cold) return "cold";
+    var off = [travelOk, budgetOk, passOk, bookOk].filter(function(x){ return !x; }).length;
+    return off === 0 ? "hot" : off === 1 ? "warm" : "cold";
+  }
+
+  /* ---------- Tracking helpers ---------- */
+  function getCookie(name){
+    var m = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"));
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+  var params = {};
+  try { new URLSearchParams(location.search).forEach(function(v, k){ params[k] = v; }); } catch (e) {}
+  var landedAt = Date.now();
+
+  function makeEventId(){
+    var r = "";
+    try { var a = new Uint32Array(2); crypto.getRandomValues(a); r = a[0].toString(36) + a[1].toString(36); }
+    catch (e) { r = Math.random().toString(36).slice(2); }
+    return "vn_" + Date.now().toString(36) + "_" + r;
+  }
+
+  /* ---------- Submit ---------- */
+  function submit(){
+    if (submitting) return;
+    submitting = true;
+    var btn = document.getElementById("submitBtn");
+    btn.disabled = true;
+    btn.firstChild.nodeValue = "Sending… ";
+
+    var phone10 = normPhone(answers.phone);
+    var fullName = (answers.full_name || "").trim().replace(/\s+/g, " ");
+    var eventId = makeEventId();
+    var leadScore = score(answers);
+    var fbclid = params.fbclid || "";
+    var fbc = getCookie("_fbc") || (fbclid ? "fb.1." + landedAt + "." + fbclid : "");
+
+    var payload = {
+      form: CFG.FORM_NAME || "vietnam_5n6d_landing",
+      package: "Vietnam 5N/6D",
+      submitted_at: new Date().toISOString(),
+      event_id: eventId,
+      lead_score: leadScore,
+      full_name: fullName,
+      phone: "+91" + phone10,
+      answers: {
+        travel_month: answers.travel_month || "",
+        travellers: answers.travellers || "",
+        budget_per_person: answers.budget_pp || "",
+        passport: answers.passport || "",
+        booking_timeline: answers.booking || "",
+        flying_from: answers.from_city === "Other city" ? otherCity.trim() : (answers.from_city || ""),
+        call_time: answers.call_time || ""
+      },
+      tracking: {
+        utm_source: params.utm_source || "",
+        utm_medium: params.utm_medium || "",
+        utm_campaign: params.utm_campaign || "",
+        utm_content: params.utm_content || "",
+        utm_term: params.utm_term || "",
+        fbclid: fbclid,
+        fbc: fbc,
+        fbp: getCookie("_fbp"),
+        all_params: params,
+        page_url: location.href,
+        referrer: document.referrer || "",
+        user_agent: navigator.userAgent
+      }
+    };
+
+    // Meta Pixel: Lead, with the same event_id your CRM can send through Conversions API
+    try {
+      if (window.fbq && CFG.PIXEL_ID) {
+        fbq("track", "Lead", { content_name: "Vietnam 5N6D", content_category: "Vietnam", lead_score: leadScore }, { eventID: eventId });
+      }
+    } catch (e) {}
+
+    function finish(){
+      fillSummary(fullName);
+      go(TOTAL + 1, "next");
+      submitting = false;
+    }
+    function fail(){
+      submitting = false;
+      btn.disabled = false;
+      btn.firstChild.nodeValue = "Get my Vietnam plan";
+      showError(current, "We couldn't send your details. Please check your connection and tap the button again.");
+    }
+
+    if (!CFG.WEBHOOK_URL) {
+      if (window.console) console.info("[Glabol form] Preview mode, nothing sent. Payload:", payload);
+      setTimeout(finish, 450);
+      return;
+    }
+    var body = JSON.stringify(payload);
+    fetch(CFG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true })
+      .then(function(res){ if (!res.ok) throw new Error("HTTP " + res.status); finish(); })
+      .catch(function(){
+        // Some webhook tools don't allow cross-site JSON. Try once more as plain text.
+        fetch(CFG.WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: body, keepalive: true })
+          .then(finish)
+          .catch(fail);
+      });
+  }
+
+  function fillSummary(fullName){
+    var first = fullName.split(" ")[0];
+    if (first) document.getElementById("doneTitle").textContent = "Got it, " + first + ". We're on your Vietnam plan.";
+    var rows = [
+      ["Travelling", answers.travel_month],
+      ["People", answers.travellers],
+      ["Flying from", answers.from_city === "Other city" ? otherCity.trim() : answers.from_city],
+      ["Call slot", answers.call_time]
+    ];
+    document.getElementById("summary").innerHTML = rows.map(function(r){
+      return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1] || "–") + "</dd></div>";
+    }).join("");
+  }
+
+  updateChrome();
+})();
+</script>
+</body>
+</html>
