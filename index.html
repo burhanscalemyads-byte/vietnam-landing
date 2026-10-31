@@ -8,7 +8,9 @@
 <meta name="theme-color" content="#2B1510">
 <meta property="og:title" content="Vietnam 5N/6D · Glabol">
 <meta property="og:description" content="Send us your dates. We will handle the rest. Trips from ₹40,999 per person, international flights extra.">
-<meta property="og:image" content="assets/og-vietnam.jpg">
+<meta property="og:image" content="https://vietnam.glabol.com/assets/og-vietnam.jpg">
+<meta property="og:url" content="https://vietnam.glabol.com/">
+<link rel="canonical" href="https://vietnam.glabol.com/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -17,13 +19,23 @@
 /* ============================================================
    SETTINGS: change these before you go live
    ------------------------------------------------------------
-   WEBHOOK_URL  Where each lead is sent as JSON (your CRM's web-form
-                or webhook URL). Leave empty and the page runs in
-                preview mode: nothing is sent anywhere.
-   PIXEL_ID     Meta Pixel / dataset ID. Fires PageView on load and
-                Lead on submit (with an event_id for deduplication).
+   CRM_WEBHOOK_URL  Glabol CRM intake (same as the Kashmir and Himachal
+                    pages). It accepts requests from *.glabol.com pages
+                    only, so a local test copy can't reach it.
+   CRM_API_KEY      Sent as the x-api-key header. Visible in the page
+                    source, like any browser-side webhook.
+   DESTINATION      The destination name the CRM files the lead under.
+   WEBHOOK_URL      Optional second destination for the full answers as
+                    JSON (e.g. a Google Sheet script). Leave empty if unused.
+                    With no CRM and no webhook the page runs in preview
+                    mode: nothing is sent anywhere.
+   PIXEL_ID         Meta Pixel / dataset ID. Fires PageView on load and
+                    Lead on submit (with an event_id for deduplication).
    ============================================================ */
 window.GLABOL_FORM = {
+  CRM_WEBHOOK_URL: "https://crm.glabol.com/api/webhooks/leads/intake?secret=xq6z371n9a",
+  CRM_API_KEY: "xq6z371n9a",
+  DESTINATION: "Vietnam",
   WEBHOOK_URL: "",
   PIXEL_ID: "4126422144254829",
   FORM_NAME: "vietnam_5n6d_landing_v1",
@@ -530,7 +542,7 @@ a{color:inherit}
   var nextBtn = document.getElementById("nextBtn");
   var live = document.getElementById("live");
 
-  if (!CFG.WEBHOOK_URL) document.getElementById("previewNote").hidden = false;
+  if (!CFG.WEBHOOK_URL && !CFG.CRM_WEBHOOK_URL) document.getElementById("previewNote").hidden = false;
   if (CFG.WEBSITE_URL) document.getElementById("siteLink").href = CFG.WEBSITE_URL;
 
   /* ---------- Build question screens ---------- */
@@ -833,19 +845,73 @@ a{color:inherit}
       showError(current, "We couldn't send your details. Please check your connection and tap the button again.");
     }
 
-    if (!CFG.WEBHOOK_URL) {
+    if (!CFG.WEBHOOK_URL && !CFG.CRM_WEBHOOK_URL) {
       if (window.console) console.info("[Glabol form] Preview mode, nothing sent. Payload:", payload);
       setTimeout(finish, 450);
       return;
     }
-    var body = JSON.stringify(payload);
-    fetch(CFG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true })
-      .then(function(res){ if (!res.ok) throw new Error("HTTP " + res.status); finish(); })
+
+    // Send to every configured destination. The visitor moves on as soon as one has it.
+    var sends = [];
+    if (CFG.CRM_WEBHOOK_URL) sends.push(postToCRM(payload));
+    if (CFG.WEBHOOK_URL) sends.push(postToWebhook(payload));
+    Promise.all(sends.map(function(p){ return p.then(function(){ return true; }, function(){ return false; }); }))
+      .then(function(results){
+        if (results.indexOf(true) > -1) return finish();
+        // First failure: ask them to tap again. Second failure: let them through rather than trap them.
+        sendFailures += 1;
+        if (sendFailures >= 2) { if (window.console) console.error("[Glabol form] Lead not delivered:", payload); finish(); }
+        else fail();
+      });
+  }
+  var sendFailures = 0;
+
+  // Glabol CRM, same fields as the Kashmir and Himachal pages. Gives up after 8 seconds.
+  function crmSource(){
+    var s = (params.utm_source || "").toLowerCase(), m = (params.utm_medium || "").toLowerCase();
+    if (params.gclid || params.gbraid || params.wbraid || (s === "google" && /cpc|ppc|paid/.test(m))) return "Google Ads";
+    if (/facebook|instagram|meta|^fb$|^ig$/.test(s) || (!s && params.fbclid)) return "Meta Ads";
+    return "Website";
+  }
+  function postToCRM(p){
+    var a = p.answers;
+    var message = "Interested in " + (CFG.DESTINATION || "Vietnam") + " package (5N/6D). " +
+      "Travel month: " + (a.travel_month || "-") + ". Travellers: " + (a.travellers || "-") + ". " +
+      "Budget per person: " + (a.budget_per_person || "-") + ". Passport: " + (a.passport || "-") + ". " +
+      "Booking: " + (a.booking_timeline || "-") + ". Flying from: " + (a.flying_from || "-") + ". " +
+      "Best time to call: " + (a.call_time || "-") + ". Lead score: " + p.lead_score + ".";
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 8000) : null;
+    return fetch(CFG.CRM_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-api-key": CFG.CRM_API_KEY || "" },
+      body: JSON.stringify({
+        name: p.full_name,
+        phone: p.phone,
+        email: "",
+        destination: CFG.DESTINATION || "Vietnam",
+        message: message,
+        host: location.hostname,
+        source: crmSource()
+      }),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function(res){
+      if (timer) clearTimeout(timer);
+      if (!res.ok) throw new Error("CRM returned " + res.status);
+    }, function(err){
+      if (timer) clearTimeout(timer);
+      if (window.console) console.error("[Glabol form] CRM post failed:", err);
+      throw err;
+    });
+  }
+
+  function postToWebhook(p){
+    var body = JSON.stringify(p);
+    return fetch(CFG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true })
+      .then(function(res){ if (!res.ok) throw new Error("HTTP " + res.status); })
       .catch(function(){
         // Some webhook tools don't allow cross-site JSON. Try once more as plain text.
-        fetch(CFG.WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: body, keepalive: true })
-          .then(finish)
-          .catch(fail);
+        return fetch(CFG.WEBHOOK_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: body, keepalive: true });
       });
   }
 
