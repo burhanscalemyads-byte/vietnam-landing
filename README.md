@@ -58,7 +58,7 @@ On 31 Oct the owner removed the "900+ people asked" kicker, the subheadline and 
 - `?v=search`
 - `?v=warning`
 
-`utm_content` also works if `v` is missing. The tag is added to the end of the CRM message ("Ad: warning") and to the Meta Pixel Lead event. Untagged links show "Ad: not tagged".
+`utm_content` also works if `v` is missing. The tag goes into the Sheet's "Ad" column and onto the Meta Pixel Lead event (`ad_version`). Untagged links show "default" in the Sheet and "not tagged" on the Pixel. The CRM message stays short, so it doesn't carry the tag.
 
 ## Welcome-screen pointers (31 Oct 2026)
 
@@ -105,19 +105,23 @@ Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way th
 - `destination`: "Vietnam"
 - `host`
 - `source`: Google Ads, Meta Ads or Website
-- `message`: one compact line, at most 160 characters, for example `Vietnam 5N/6D | Dec 2026 | 2 pax | ₹40–60k pp | Passport: yes | Book: this month | From Mumbai | Call 4pm–7pm | hot | Ad: brush`
+- `message`: the same short line as the Kashmir and Himachal pages, at most 86 characters, for example "Interested in Vietnam package. Travel month: Dec 2026. Travellers: 2."
 
-**CRM message limit.** On 31 Oct 2026 the CRM refused a 235-character message with HTTP 500 `Data too long for column 'source_detail' at row 1`. Messages of about 100 characters went through. The page therefore keeps the line short. If the CRM still refuses it (any 4xx/5xx reply), the page retries once with the short Kashmir-style line ("Interested in Vietnam package. Travel month: X. Travellers: Y."). If the CRM developer widens `source_detail` (TEXT, or VARCHAR(1000)), the full line can come back.
+**Why the message is short.** On 31 Oct 2026 the CRM refused a 235-character message with HTTP 500 "Data too long for column 'source_detail' at row 1". Messages of about 100 characters go through. The full answers are in the Google Sheet. If the CRM developer widens `source_detail` (to TEXT, or VARCHAR(1000)), more detail can go in the message.
 
-The CRM accepts requests only from `*.glabol.com` pages, so a local test copy can't reach it. If every destination fails, the visitor is asked to tap again. If it fails a second time, they're let through and the lead is logged in the browser console.
+**Retries.** The page tries the CRM up to 3 times, 1.5 s and 4 s apart. It retries when the CRM is down, slow (no reply in 8 s), busy (5xx, 429) or unreachable. A 4xx reply such as a bad key won't change on a retry, so the page stops there and logs the error in the browser console.
 
-Leads also go to the Google Sheet when `SHEET_URL` is set (URL-encoded POST, `no-cors`). The Sheet is sent after the CRM replies, so its **CRM** column shows the result:
+**The CRM and the Sheet are separate.** The page posts to each one directly, at the same time. Neither waits for the other, nothing is passed between them, and the Sheet script never talks to the CRM.
 
-- `Added, lead #10965`
-- `Added (short message), lead #…`
-- `NOT ADDED: HTTP 500 …`
+**What the visitor sees:**
 
-A lead the CRM refused is still in the Sheet. Its email alert subject starts with "[Not in CRM]". `WEBHOOK_URL` remains an optional third destination for the full JSON payload.
+- They reach the thank-you screen as soon as the CRM has the lead.
+- If the CRM is slow, they reach it after 12 seconds once the Sheet has the lead. The CRM tries carry on while the thank-you screen is open.
+- If neither destination gets the lead, they're asked to tap again. If that fails too, they're let through and the lead is logged in the browser console.
+
+The CRM accepts requests only from `*.glabol.com` pages, so a local test copy can't reach it.
+
+Leads also go to the Google Sheet when `SHEET_URL` is set (URL-encoded POST, `no-cors`). `WEBHOOK_URL` remains an optional third destination for the full JSON payload.
 
 ## Hosting: vietnam-trip.glabol.com
 

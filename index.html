@@ -977,28 +977,37 @@ a{color:inherit}
       return;
     }
 
-    // Send to every configured destination. The visitor moves on once any one of them has it.
-    // The Sheet goes after the CRM so its row can say whether the CRM took the lead.
-    var sends = [];
-    var crm = CFG.CRM_WEBHOOK_URL ? postToCRM(payload) : null;
-    if (crm) sends.push(crm);
-    if (CFG.SHEET_URL) {
-      sends.push(crm
-        ? crm.then(function(s){ return postToSheet(payload, s); },
-                   function(err){ return postToSheet(payload, "NOT ADDED: " + err.message); })
-        : postToSheet(payload, "CRM not set up"));
+    // The CRM and the Sheet are sent separately, at the same time, straight from the page. Neither waits
+    // for the other and nothing is passed between them.
+    // - The CRM gets up to 3 tries.
+    // - The visitor moves on as soon as the CRM has the lead. If the CRM is slow, they move on after 12
+    //   seconds once the Sheet has it, and the CRM tries carry on while the thank-you screen is open.
+    var decided = false;
+    function decide(ok){
+      if (decided) return;
+      decided = true;
+      if (ok) return finish();
+      // First failure: ask them to tap again. Second failure: let them through rather than trap them.
+      sendFailures += 1;
+      if (sendFailures >= 2) { if (window.console) console.error("[Glabol form] Lead not delivered:", payload); finish(); }
+      else fail();
     }
-    if (CFG.WEBHOOK_URL) sends.push(postToWebhook(payload));
-    Promise.all(sends.map(function(p){ return p.then(function(){ return true; }, function(){ return false; }); }))
-      .then(function(results){
-        if (results.indexOf(true) > -1) return finish();
-        // First failure: ask them to tap again. Second failure: let them through rather than trap them.
-        sendFailures += 1;
-        if (sendFailures >= 2) { if (window.console) console.error("[Glabol form] Lead not delivered:", payload); finish(); }
-        else fail();
-      });
+    function settled(p){ return p ? p.then(function(){ return true; }, function(){ return false; }) : Promise.resolve(false); }
+
+    var crm = CFG.CRM_WEBHOOK_URL ? postToCRM(payload) : null;
+    var sheet = CFG.SHEET_URL ? postToSheet(payload) : null;
+    var hook = CFG.WEBHOOK_URL ? postToWebhook(payload) : null;
+    var crmOk = settled(crm);
+    crmOk.then(function(ok){ if (ok) decide(true); });
+    var crmOrLate = crm ? Promise.race([crmOk, wait(12000).then(function(){ return "late"; })]) : crmOk;
+    Promise.all([crmOrLate, settled(sheet), settled(hook)]).then(function(r){
+      if (r[1] || r[2]) return decide(true);
+      if (r[0] === "late") return crmOk.then(decide);   // nothing else got it: wait for the CRM's last try
+      decide(r[0] === true);
+    });
   }
   var sendFailures = 0;
+  function wait(ms){ return new Promise(function(res){ setTimeout(res, ms); }); }
 
   // Glabol CRM, same fields as the Kashmir and Himachal pages. Gives up after 8 seconds.
   function crmSource(){
@@ -1007,37 +1016,26 @@ a{color:inherit}
     if (/facebook|instagram|meta|^fb$|^ig$/.test(s) || (!s && params.fbclid)) return "Meta Ads";
     return "Website";
   }
-  // The CRM stores the message in a short column: anything much over 200 characters is refused with
-  // HTTP 500 "Data too long for column 'source_detail'". So the CRM gets a compact line (max 160
-  // characters), and the full answers go to the Google Sheet.
-  var SHORT = {
-    "Just me": "1", "6 or more": "6+",
-    "Under ₹40,000": "under ₹40k", "₹40,000–₹60,000": "₹40–60k", "₹60,000–₹90,000": "₹60–90k", "Above ₹90,000": "₹90k+",
-    "Yes, all set": "yes", "Someone is applying or renewing": "applying", "Not yet": "no",
-    "This week": "this week", "This month": "this month", "In 1–3 months": "1–3 months", "Just checking prices": "checking prices"
-  };
-  function sh(v){ return SHORT[v] || v || "-"; }
-  function crmMessage(p, minimal){
-    var a = p.answers, ad = AD_KEY || "not tagged";
-    var m = minimal
-      ? "Interested in Vietnam package. Travel month: " + (a.travel_month || "-") + ". Travellers: " + (a.travellers || "-") + "."
-      : "Vietnam 5N/6D | " + (a.travel_month || "-") + " | " + sh(a.travellers) + " pax | " + sh(a.budget_per_person) + " pp" +
-        " | Passport: " + sh(a.passport) + " | Book: " + sh(a.booking_timeline) + " | From " + (a.flying_from || "-").slice(0, 14) +
-        " | Call " + (a.call_time || "-") + " | " + p.lead_score + " | Ad: " + ad;
-    return m.length > 160 ? m.slice(0, 159) + "…" : m;
+  // The CRM gets the same short message as the Kashmir and Himachal pages (86 characters at most).
+  // A long message is refused: on 31 Oct a 235-character one got HTTP 500 "Data too long for column
+  // 'source_detail'". The full answers go to the Google Sheet.
+  function crmMessage(p){
+    var a = p.answers;
+    return "Interested in " + (CFG.DESTINATION || "Vietnam") + " package. Travel month: " + (a.travel_month || "-") +
+      ". Travellers: " + (a.travellers || "-") + ".";
   }
-  function crmPost(p, minimal, ms){
+  function crmPost(p, ms){
     var ctrl = window.AbortController ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, ms) : null;
     return fetch(CFG.CRM_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": CFG.CRM_API_KEY || "" },
       body: JSON.stringify({
-        name: p.full_name,
+        name: p.full_name.slice(0, 60),
         phone: p.phone,
         email: "",
         destination: CFG.DESTINATION || "Vietnam",
-        message: crmMessage(p, minimal),
+        message: crmMessage(p),
         host: location.hostname,
         source: crmSource()
       }),
@@ -1054,28 +1052,35 @@ a{color:inherit}
       throw new Error(err && err.name === "AbortError" ? "no reply in " + (ms / 1000) + "s" : "network error");
     });
   }
-  // Resolves to a status line for the Sheet ("Added, lead #10965"); rejects if the CRM didn't take it.
-  // If the CRM refuses the full line (a 4xx/5xx reply), it tries once more with the short Kashmir-style line.
+  // Up to 3 tries, 1.5 s and 4 s apart, when the CRM is down, slow, busy (5xx, 429) or unreachable.
+  // A 4xx reply (bad key, bad data) won't change on a retry, so that stops at once.
+  // Resolves to "Added, lead #10965"; rejects with every error if all tries fail (logged in the console).
+  var CRM_WAITS = [0, 1500, 4000];
   function postToCRM(p){
-    return crmPost(p, false, 8000).then(function(id){ return "Added, " + id; }, function(err){
-      if (!/^HTTP [45]/.test(err.message)) throw err;
-      if (window.console) console.warn("[Glabol form] CRM refused the full line, retrying short:", err.message);
-      return crmPost(p, true, 6000).then(
-        function(id){ return "Added (short message), " + id; },
-        function(err2){ throw new Error(err.message + "; retry: " + err2.message); });
-    }).catch(function(err){
-      if (window.console) console.error("[Glabol form] CRM post failed:", err);
-      throw err;
-    });
+    var errors = [];
+    function attempt(n){
+      return wait(CRM_WAITS[n]).then(function(){ return crmPost(p, 8000); }).then(function(id){
+        return "Added, " + id + (n ? " (try " + (n + 1) + ")" : "");
+      }, function(err){
+        errors.push(err.message);
+        var permanent = /^HTTP 4/.test(err.message) && !/^HTTP 429/.test(err.message);
+        if (!permanent && n + 1 < CRM_WAITS.length) {
+          if (window.console) console.warn("[Glabol form] CRM try " + (n + 1) + " failed, retrying:", err.message);
+          return attempt(n + 1);
+        }
+        var e = new Error(errors.join("; "));
+        if (window.console) console.error("[Glabol form] CRM post failed:", e.message);
+        throw e;
+      });
+    }
+    return attempt(0);
   }
 
   // Google Sheet (Apps Script web app). Apps Script sends no CORS headers, so the reply can't be read:
-  // the request counts as sent once the browser has handed it over. The "CRM" column records what the
-  // CRM said, so a lead the CRM refused still shows up (and is flagged) in the Sheet.
-  function postToSheet(p, crmStatus){
+  // the request counts as sent once the browser has handed it over. Independent of the CRM post.
+  function postToSheet(p){
     var a = p.answers, t = p.tracking;
     var body = new URLSearchParams({
-      crm_status: crmStatus || "",
       name: p.full_name, phone: p.phone, lead_score: p.lead_score,
       travel_month: a.travel_month, travellers: a.travellers, budget: a.budget_per_person,
       passport: a.passport, booking: a.booking_timeline, flying_from: a.flying_from, call_time: a.call_time,

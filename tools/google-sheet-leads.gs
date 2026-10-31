@@ -2,6 +2,7 @@
 /**
  * Glabol Vietnam landing page (vietnam-trip.glabol.com) → Google Sheet
  * Every enquiry becomes a row in the "Leads" tab, and the sheet owner gets an email alert.
+ * The page sends each lead here and to the Glabol CRM separately; this script never talks to the CRM.
  *
  * SETUP (once)
  *  1. In the "Glabol Vietnam Leads" sheet: Extensions → Apps Script, paste this file, Save.
@@ -26,7 +27,6 @@ const COLUMNS = [
   ["Name", "name"],
   ["Phone", "phone"],
   ["Lead score", "lead_score"],
-  ["CRM", "crm_status"],
   ["Travel month", "travel_month"],
   ["Travellers", "travellers"],
   ["Budget per person", "budget"],
@@ -121,7 +121,6 @@ function alert_(p, name, digits) {
       "Name: " + name,
       "Phone: +91 " + digits + "   WhatsApp: " + wa,
       "Lead score: " + clean_(p.lead_score),
-      "CRM: " + (clean_(p.crm_status) || "-"),
       "Travel month: " + clean_(p.travel_month) + "   Travellers: " + clean_(p.travellers),
       "Budget per person: " + clean_(p.budget),
       "Passport: " + clean_(p.passport) + "   Booking: " + clean_(p.booking),
@@ -132,8 +131,7 @@ function alert_(p, name, digits) {
     ];
     MailApp.sendEmail({
       to: to,
-      subject: (/^NOT ADDED/.test(clean_(p.crm_status)) ? "[Not in CRM] " : "") +
-        "New Vietnam lead: " + name + " (" + clean_(p.travel_month) + ", " + clean_(p.lead_score) + ")",
+      subject: "New Vietnam lead: " + name + " (" + clean_(p.travel_month) + ", " + clean_(p.lead_score) + ")",
       body: lines.join("\n"),
       name: "Glabol leads"
     });
