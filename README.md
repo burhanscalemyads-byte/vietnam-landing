@@ -51,12 +51,12 @@ The CRM accepts requests only from `*.glabol.com` pages, so a local test copy ca
 
 `WEBHOOK_URL` is an optional second destination for the full JSON payload, such as a Google Sheet script. It is not set up yet.
 
-## Hosting: vietnam.glabol.com
+## Hosting: vietnam-trip.glabol.com
 
 This uses the same setup as kashmir.glabol.com and himachal.glabol.com:
 
-1. **GitHub Pages:** go to Settings → Pages → Deploy from a branch, then `main` / root. The `CNAME` file sets the custom domain, vietnam.glabol.com.
-2. **Cloudflare DNS:** add a CNAME record `vietnam` → `burhanscalemyads-byte.github.io`, proxied.
+1. **GitHub Pages:** go to Settings → Pages → Deploy from a branch, then `main` / root. The `CNAME` file sets the custom domain, vietnam-trip.glabol.com.
+2. **Cloudflare DNS:** add a CNAME record `vietnam-trip` → `burhanscalemyads-byte.github.io`, proxied.
 
 Every push to `main` goes live in about a minute. GitHub Pages serves every file in the repo publicly; nothing here is secret beyond the CRM key, which is visible in any browser-side page anyway.
 
