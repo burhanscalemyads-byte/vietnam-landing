@@ -36,6 +36,26 @@ Along with the answers, the page sends:
 - `fbclid` from the URL, plus the `fbc` and `fbp` values
 - The page URL and a timestamp
 
+## Ad-matched versions
+
+Each Vietnam ad links to its own version of the welcome screen, so the page repeats the promise the person just clicked on. The questions and the form stay the same.
+
+| Ad | Link | What changes |
+|---|---|---|
+| 01 Breaking Brush | `https://vietnam-trip.glabol.com/?v=brush` | "Breaking" label, "The Vietnam deal travellers are talking about.", Golden Bridge |
+| 02 Breaking News Nov–Jan | `https://vietnam-trip.glabol.com/?v=news` | "Breaking news" label, "The winter Vietnam deal…", 900+ enquiries line, Golden Bridge |
+| 03 Don't Book With Us | `https://vietnam-trip.glabol.com/?v=dontbook` | "Not the same itinerary everyone else gets.", Golden Bridge |
+| 04 Search Suggestions | `https://vietnam-trip.glabol.com/?v=search` | "Searched Vietnam lately? Get all five answered.", Ha Long Bay |
+| 05 Warning Post | `https://vietnam-trip.glabol.com/?v=warning` | "Warning" label, "Don't pay until you see the full cost, line by line.", Golden Bridge |
+| Anything else | `https://vietnam-trip.glabol.com/` | The default page |
+
+- **Meta setup:** put the link in the ad's Website URL. Keep the UTM tags in the URL parameters field as usual. `utm_content=<key>` also selects a version if `v` is missing.
+- **Changing the copy:** edit `VARIANTS` near the top of the main script in `index.html`.
+- **Lead tagging:** every lead carries its version:
+  - `ad_version` in the JSON payload
+  - "Landing page version: Warning post (v=warning)" at the end of the CRM message
+  - `ad_version` on the Meta Pixel Lead event, plus the version in `content_name`
+
 ## Leads
 
 Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way the Kashmir and Himachal pages do it. The page sends JSON with an `x-api-key` header, with these fields:

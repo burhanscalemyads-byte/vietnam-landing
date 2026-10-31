@@ -11,6 +11,11 @@
 <meta property="og:image" content="https://vietnam-trip.glabol.com/assets/og-vietnam.jpg">
 <meta property="og:url" content="https://vietnam-trip.glabol.com/">
 <link rel="canonical" href="https://vietnam-trip.glabol.com/">
+<script>
+/* Hide the welcome screen for a moment when an ad-matched version is asked for, so the default copy never flashes */
+try { if (/[?&](v|utm_content)=/.test(location.search)) document.documentElement.classList.add("v-pending"); } catch (e) {}
+setTimeout(function(){ document.documentElement.classList.remove("v-pending"); }, 1500);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -178,6 +183,14 @@ a{color:inherit}
   text-wrap:balance;
 }
 .welcome h1 span{display:block}
+/* Ad-matched versions (?v=...): label above the headline, and no flash of the default copy */
+.v-badge{display:inline-flex;align-items:center;gap:8px;margin:18px 0 -4px;padding:7px 12px 7px 10px;border-radius:6px;
+  background:var(--lantern);color:#fff;font-family:var(--head);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.v-badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.28)}
+.v-badge.warn{background:#F08A24;color:#2B1510}
+.v-badge.warn::before{background:#2B1510;box-shadow:none}
+.v-badge[hidden]{display:none}
+.v-pending #screen-0,.v-pending .photo-side{visibility:hidden}
 .welcome h1:focus{outline:none}
 .sub{
   font-family:var(--head);font-weight:500;
@@ -422,18 +435,19 @@ a{color:inherit}
     <main class="stage" id="stage">
       <!-- Welcome -->
       <section class="screen welcome" id="screen-0" aria-labelledby="welcomeTitle">
+        <span class="v-badge" id="vBadge" hidden></span>
         <h1 id="welcomeTitle" tabindex="-1"><span>Going Vietnam?</span> <span>Leave the planning to us.</span></h1>
-        <p class="sub">Send us your dates. We will handle the rest.</p>
+        <p class="sub" id="welcomeSub">Send us your dates. We will handle the rest.</p>
 
         <figure class="welcome-photo">
           <picture>
-            <source media="(max-width:999px)" srcset="assets/vietnam-ba-na-group.jpg">
-            <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="A Glabol travel group posing together at Ba Na Hills, Vietnam" width="1400" height="788" fetchpriority="high">
+            <source media="(max-width:999px)" srcset="assets/vietnam-ba-na-group.jpg" id="mobilePhotoSrc">
+            <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="A Glabol travel group posing together at Ba Na Hills, Vietnam" width="1400" height="788" fetchpriority="high" id="mobilePhoto">
           </picture>
-          <figcaption class="photo-chip">Glabol travellers at Ba Na Hills, Vietnam</figcaption>
+          <figcaption class="photo-chip" id="mobilePhotoChip">Glabol travellers at Ba Na Hills, Vietnam</figcaption>
         </figure>
 
-        <ul class="checks">
+        <ul class="checks" id="welcomeChecks">
           <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Day-by-day 5N/6D Vietnam itinerary</li>
           <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Full cost for your dates and group</li>
           <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>What's included, and what's not, before you pay</li>
@@ -482,11 +496,11 @@ a{color:inherit}
   <aside class="photo-side" aria-hidden="true">
     <div class="photo-frame">
       <picture>
-        <source media="(min-width:1000px)" srcset="assets/vietnam-ha-long-deck.jpg">
+        <source media="(min-width:1000px)" srcset="assets/vietnam-ha-long-deck.jpg" id="sidePhotoSrc">
         <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" width="1000" height="1778">
       </picture>
       <span class="pill"><i></i>Vietnam · 5N/6D</span>
-      <span class="photo-chip">Glabol travellers on Ha Long Bay</span>
+      <span class="photo-chip" id="sidePhotoChip">Glabol travellers on Ha Long Bay</span>
     </div>
   </aside>
 </div>
@@ -499,6 +513,87 @@ a{color:inherit}
 (function(){
   "use strict";
   var CFG = window.GLABOL_FORM || {};
+
+  /* ---------- Ad-matched versions ----------
+     Each ad links here with ?v=<key> (utm_content=<key> also works). The welcome screen then
+     repeats that ad's promise, label and photo. With no key, or an unknown one, the default stays. */
+  var BRIDGE = { mobile: "assets/vietnam-golden-bridge.jpg", side: "assets/vietnam-golden-bridge-tall.jpg",
+                 alt: "The Golden Bridge held up by two stone hands at Ba Na Hills, Vietnam", chip: "Golden Bridge, Ba Na Hills" };
+  var VARIANTS = {
+    brush: {
+      label: "Breaking news (brush)", badge: "Breaking",
+      title: ["The Vietnam deal", "travellers are talking about."],
+      sub: "5N/6D across Hanoi and Da Nang, from ₹40,999 per person.",
+      checks: ["Day-by-day 5N/6D itinerary", "Full cost for your dates, line by line", "4.5★ on Google from 1,600+ reviews"],
+      photo: BRIDGE
+    },
+    news: {
+      label: "Breaking news (Nov–Jan)", badge: "Breaking news",
+      title: ["The winter Vietnam deal", "travellers are talking about."],
+      sub: "Going Nov–Jan? 900+ people asked us about this trip since August.",
+      checks: ["Day-by-day plan for your Nov–Jan dates", "Full cost for your dates and group", "What's included and what's not, upfront"],
+      photo: BRIDGE
+    },
+    dontbook: {
+      label: "Don't book with us",
+      title: ["Not the same itinerary", "everyone else gets."],
+      sub: "Send us your dates. We'll plan your 5N/6D day by day around them, with the full cost.",
+      checks: ["A day-by-day plan built for your dates", "Full cost for your group, line by line", "What's included and what's not, upfront"],
+      photo: BRIDGE
+    },
+    search: {
+      label: "Search suggestions",
+      title: ["Searched Vietnam lately?", "Get all five answered."],
+      sub: "Cost, itinerary, visa, weather, package. Send your dates and we'll answer all five.",
+      checks: ["Cost: the full price for your dates", "Itinerary: a day-by-day 5N/6D plan", "Visa and weather for your month"],
+      photo: { mobile: "assets/vietnam-ha-long-karst.jpg", side: "assets/vietnam-ha-long-deck.jpg",
+               alt: "Limestone karsts rising from Ha Long Bay, Vietnam", chip: "Ha Long Bay, Vietnam", sideChip: "Glabol travellers on Ha Long Bay" }
+    },
+    warning: {
+      label: "Warning post", badge: "Warning", badgeClass: "warn",
+      title: ["Don't pay until you see", "the full cost, line by line."],
+      sub: "Send your dates. We'll send a 5N/6D plan with every cost listed.",
+      checks: ["Full cost for your dates, line by line", "What's included and what's not, upfront", "Day-by-day 5N/6D itinerary"],
+      photo: BRIDGE
+    }
+  };
+  var AD_KEY = "";
+  (function applyVariant(){
+    try {
+      var q = new URLSearchParams(location.search);
+      var key = (q.get("v") || q.get("utm_content") || "").toLowerCase().replace(/[^a-z]/g, "");
+      var v = VARIANTS[key];
+      if (!v) return;
+      AD_KEY = key;
+      var h1 = document.getElementById("welcomeTitle");
+      h1.innerHTML = "";
+      v.title.forEach(function(line, i){
+        var s = document.createElement("span"); s.textContent = line;
+        h1.appendChild(s); if (i < v.title.length - 1) h1.appendChild(document.createTextNode(" "));
+      });
+      document.getElementById("welcomeSub").textContent = v.sub;
+      var items = document.querySelectorAll("#welcomeChecks li");
+      v.checks.forEach(function(t, i){
+        if (!items[i]) return;
+        var svg = items[i].querySelector("svg");
+        items[i].textContent = ""; if (svg) items[i].appendChild(svg);
+        items[i].appendChild(document.createTextNode(t));
+      });
+      if (v.badge) {
+        var b = document.getElementById("vBadge");
+        b.textContent = v.badge; b.hidden = false; if (v.badgeClass) b.classList.add(v.badgeClass);
+      }
+      document.getElementById("mobilePhotoSrc").srcset = v.photo.mobile;
+      var mImg = document.getElementById("mobilePhoto"); mImg.alt = v.photo.alt; mImg.style.objectPosition = "50% 50%";
+      document.getElementById("mobilePhotoChip").textContent = v.photo.chip;
+      document.getElementById("sidePhotoSrc").srcset = v.photo.side;
+      document.getElementById("sidePhotoChip").textContent = v.photo.sideChip || v.photo.chip;
+    } catch (e) {
+      if (window.console) console.error("[Glabol form] Could not apply the ad version:", e);
+    } finally {
+      document.documentElement.classList.remove("v-pending");
+    }
+  })();
 
   var QUESTIONS = [
     { id:"travel_month", type:"choice", title:"When are you planning to go?",
@@ -799,6 +894,7 @@ a{color:inherit}
       submitted_at: new Date().toISOString(),
       event_id: eventId,
       lead_score: leadScore,
+      ad_version: AD_KEY || "default",
       full_name: fullName,
       phone: "+91" + phone10,
       answers: {
@@ -829,7 +925,7 @@ a{color:inherit}
     // Meta Pixel: Lead, with the same event_id your CRM can send through Conversions API
     try {
       if (window.fbq && CFG.PIXEL_ID) {
-        fbq("track", "Lead", { content_name: "Vietnam 5N6D", content_category: "Vietnam", lead_score: leadScore }, { eventID: eventId });
+        fbq("track", "Lead", { content_name: "Vietnam 5N6D" + (AD_KEY ? " - " + AD_KEY : ""), content_category: "Vietnam", lead_score: leadScore, ad_version: AD_KEY || "default" }, { eventID: eventId });
       }
     } catch (e) {}
 
@@ -879,7 +975,8 @@ a{color:inherit}
       "Travel month: " + (a.travel_month || "-") + ". Travellers: " + (a.travellers || "-") + ". " +
       "Budget per person: " + (a.budget_per_person || "-") + ". Passport: " + (a.passport || "-") + ". " +
       "Booking: " + (a.booking_timeline || "-") + ". Flying from: " + (a.flying_from || "-") + ". " +
-      "Best time to call: " + (a.call_time || "-") + ". Lead score: " + p.lead_score + ".";
+      "Best time to call: " + (a.call_time || "-") + ". Lead score: " + p.lead_score + "." +
+      " Landing page version: " + (AD_KEY ? VARIANTS[AD_KEY].label + " (v=" + AD_KEY + ")" : "default") + ".";
     var ctrl = window.AbortController ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 8000) : null;
     return fetch(CFG.CRM_WEBHOOK_URL, {
