@@ -29,15 +29,24 @@
                     JSON (e.g. a Google Sheet script). Leave empty if unused.
                     With no CRM and no webhook the page runs in preview
                     mode: nothing is sent anywhere.
-   PIXEL_ID         Meta Pixel / dataset ID. Fires PageView on load and
-                    Lead on submit (with an event_id for deduplication).
+   SHEET_URL        Google Apps Script web app (.../exec) that adds each lead
+                    as a row in the "Glabol Vietnam Leads" sheet and emails
+                    an alert. Leave empty to skip the sheet.
+   PIXEL_IDS        Meta datasets that get the page's events: the Glabol CTWA
+                    CRM dataset and the website pixel used by every
+                    *.glabol.com page. PageView on load, FormStart when the
+                    form opens, Contact on WhatsApp taps, and Lead on submit
+                    (same event ID in both, phone/name hashed for matching).
+   WHATSAPP_NUMBER  Country code + number, digits only.
    ============================================================ */
 window.GLABOL_FORM = {
   CRM_WEBHOOK_URL: "https://crm.glabol.com/api/webhooks/leads/intake?secret=xq6z371n9a",
   CRM_API_KEY: "xq6z371n9a",
   DESTINATION: "Vietnam",
   WEBHOOK_URL: "",
-  PIXEL_ID: "4126422144254829",
+  SHEET_URL: "",
+  PIXEL_IDS: ["963901896777793", "4126422144254829"],   // Glabol CTWA – CRM, Glabol_SMA_MetaPixel
+  WHATSAPP_NUMBER: "919203405171",
   FORM_NAME: "vietnam_5n6d_landing_v1",
   WEBSITE_URL: "https://glabol.com",
   PRIVACY_URL: "https://glabol.com/privacy-policy"
@@ -47,14 +56,14 @@ window.GLABOL_FORM = {
 <!-- Meta Pixel -->
 <script>
 (function(){
-  var id = window.GLABOL_FORM.PIXEL_ID;
-  if (!id) return;
+  var ids = window.GLABOL_FORM.PIXEL_IDS || [];
+  if (!ids.length) return;
   !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
   n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
   n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
   t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
   document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', id);
+  ids.forEach(function(id){ fbq('init', id); });
   fbq('track', 'PageView');
 })();
 </script>
@@ -383,6 +392,22 @@ a{color:inherit}
   text-decoration:none;font-family:var(--head);font-weight:600;
 }
 .link-btn:hover{background:var(--glass)}
+/* WhatsApp */
+.top-right{display:flex;align-items:center;gap:8px}
+.wa-top{display:inline-flex;align-items:center;gap:7px;padding:6px 12px 6px 9px;border-radius:999px;text-decoration:none;color:#fff;
+  background:rgba(37,211,102,.12);border:1.5px solid rgba(37,211,102,.55);font-family:var(--head);font-weight:600;font-size:13px}
+.wa-top:hover{background:rgba(37,211,102,.22)}
+@media (max-width:999px){.wa-top{padding:7px}.wa-top span{display:none}}
+.wa-alt{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 0;padding:12px 18px;border-radius:999px;
+  text-decoration:none;color:#fff;font-family:var(--head);font-weight:600;font-size:16px;border:1.5px solid rgba(37,211,102,.6);background:rgba(37,211,102,.08)}
+.wa-alt:hover{background:rgba(37,211,102,.18)}
+@media (max-width:999px){.wa-alt{display:flex;width:100%;min-height:54px}}
+.wa-btn{display:inline-flex;align-items:center;gap:10px;margin:22px 0 0;padding:14px 22px;border-radius:999px;text-decoration:none;
+  background:#25D366;color:#0b2414;font-family:var(--head);font-weight:700;font-size:17px;box-shadow:0 10px 26px rgba(37,211,102,.28)}
+.wa-btn svg path{fill:#0b2414}
+.wa-btn:hover{background:#20bd5a}
+@media (max-width:999px){.wa-btn{display:flex;justify-content:center;width:100%;min-height:58px}}
+.wa-top:focus-visible,.wa-alt:focus-visible,.wa-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
 
 /* ---------- Bottom nav ---------- */
 .stepnav{
@@ -436,7 +461,10 @@ a{color:inherit}
   <div class="form-side">
     <header class="topbar">
       <img class="logo" src="assets/glabol-logo-white.png" alt="Glabol" width="120" height="26">
-      <span class="pill" id="topPill"><i></i>Vietnam · 5N/6D</span>
+      <span class="top-right">
+        <span class="pill" id="topPill"><i></i>Vietnam · 5N/6D</span>
+        <a class="wa-top" id="waTop" href="https://wa.me/919203405171" target="_blank" rel="noopener" aria-label="Chat with Glabol on WhatsApp"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg><span>WhatsApp</span></a>
+      </span>
       <span class="step-count" id="stepCount" hidden></span>
     </header>
 
@@ -472,6 +500,7 @@ a{color:inherit}
           </button>
           <span class="reviews-note"><b>1,600+</b><br> reviews on Google</span>
         </div>
+        <a class="wa-alt" id="waWelcome" href="https://wa.me/919203405171" target="_blank" rel="noopener"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>Prefer WhatsApp? Chat with us</a>
         <p class="fine">9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
       </section>
 
@@ -488,9 +517,7 @@ a{color:inherit}
           <p>“Everything was planned perfectly, making our journey smooth…”</p>
           <cite>Sunil R. · Google review</cite>
         </figure>
-        <a class="link-btn" id="siteLink" href="https://glabol.com">View website
-          <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+        <a class="wa-btn" id="waDone" href="https://wa.me/919203405171" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>Chat with us on WhatsApp</a>
       </section>
     </main>
 
@@ -579,7 +606,7 @@ a{color:inherit}
   var live = document.getElementById("live");
 
   if (!CFG.WEBHOOK_URL && !CFG.CRM_WEBHOOK_URL) document.getElementById("previewNote").hidden = false;
-  if (CFG.WEBSITE_URL) document.getElementById("siteLink").href = CFG.WEBSITE_URL;
+
 
   /* ---------- Build question screens ---------- */
   var ARROW = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8.5 4.5L12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -746,7 +773,11 @@ a{color:inherit}
   }
 
   /* ---------- Events ---------- */
-  document.getElementById("startBtn").addEventListener("click", function(){ go(1, "next"); });
+  var formStarted = false;
+  document.getElementById("startBtn").addEventListener("click", function(){
+    if (!formStarted) { formStarted = true; try { if (window.fbq) fbq("trackCustom", "FormStart", { content_name: "Vietnam 5N6D" }); } catch (e) {} }
+    go(1, "next");
+  });
 
   /* Sticky button on phones: visible only on the welcome screen while the main button is out of view */
   (function(){
@@ -832,6 +863,47 @@ a{color:inherit}
     return "vn_" + Date.now().toString(36) + "_" + r;
   }
 
+  /* ---------- Meta Lead with hashed advanced matching ----------
+     fbq can't take user data after the page has loaded, so the Lead goes out as a pixel request
+     with SHA-256 hashed phone, first and last name, country and external_id (hashed phone). */
+  function sha256(text){
+    try {
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function(buf){
+        return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join("");
+      });
+    } catch (e) { return Promise.resolve(""); }
+  }
+  function sendLeadPixel(eventId, phone10, fullName, custom){
+    var ids = CFG.PIXEL_IDS || [];
+    if (!ids.length) return;
+    var parts = fullName.toLowerCase().split(" ");
+    var raw = { ph: "91" + phone10, fn: parts[0] || "", ln: parts.length > 1 ? parts[parts.length - 1] : "", country: "in", external_id: "91" + phone10 };
+    var keys = Object.keys(raw).filter(function(k){ return raw[k]; });
+    Promise.all(keys.map(function(k){ return sha256(raw[k]); })).then(function(hashes){
+      ids.forEach(function(id){
+        var q = new URLSearchParams({ id: id, ev: "Lead", eid: eventId, dl: location.href, rl: document.referrer || "", ts: String(Date.now()) });
+        keys.forEach(function(k, i){ if (hashes[i]) q.append("ud[" + k + "]", hashes[i]); });
+        Object.keys(custom).forEach(function(k){ q.append("cd[" + k + "]", custom[k]); });
+        var fbp = getCookie("_fbp"), fbc = getCookie("_fbc") || (params.fbclid ? "fb.1." + landedAt + "." + params.fbclid : "");
+        if (fbp) q.append("fbp", fbp);
+        if (fbc) q.append("fbc", fbc);
+        var img = new Image(1, 1);
+        img.src = "https://www.facebook.com/tr/?" + q.toString();
+      });
+    });
+  }
+
+  /* ---------- WhatsApp ---------- */
+  function waLink(text){ return "https://wa.me/" + (CFG.WHATSAPP_NUMBER || "919203405171") + "?text=" + encodeURIComponent(text); }
+  function trackContact(where){ try { if (window.fbq) fbq("track", "Contact", { content_name: "WhatsApp " + where, content_category: "Vietnam" }); } catch (e) {} }
+  ["waTop", "waWelcome"].forEach(function(id){
+    var a = document.getElementById(id); if (!a) return;
+    a.href = waLink("Hi Glabol, I'm interested in the Vietnam 5N/6D trip.");
+    a.addEventListener("click", function(){ trackContact(id === "waTop" ? "top" : "welcome"); });
+  });
+  var waDone = document.getElementById("waDone");
+  if (waDone) waDone.addEventListener("click", function(){ trackContact("thank-you"); });
+
   /* ---------- Submit ---------- */
   function submit(){
     if (submitting) return;
@@ -881,12 +953,11 @@ a{color:inherit}
       }
     };
 
-    // Meta Pixel: Lead, with the same event_id your CRM can send through Conversions API
-    try {
-      if (window.fbq && CFG.PIXEL_ID) {
-        fbq("track", "Lead", { content_name: "Vietnam 5N6D" + (AD_KEY ? " - " + AD_KEY : ""), content_category: "Vietnam", lead_score: leadScore, ad_version: AD_KEY || "default" }, { eventID: eventId });
-      }
-    } catch (e) {}
+    // Meta: Lead to every dataset, same event ID, with hashed phone and name for matching
+    sendLeadPixel(eventId, phone10, fullName, {
+      content_name: "Vietnam 5N6D", content_category: "Vietnam",
+      lead_score: leadScore, ad_version: AD_KEY || "not tagged"
+    });
 
     function finish(){
       fillSummary(fullName);
@@ -900,7 +971,7 @@ a{color:inherit}
       showError(current, "We couldn't send your details. Please check your connection and tap the button again.");
     }
 
-    if (!CFG.WEBHOOK_URL && !CFG.CRM_WEBHOOK_URL) {
+    if (!CFG.WEBHOOK_URL && !CFG.CRM_WEBHOOK_URL && !CFG.SHEET_URL) {
       if (window.console) console.info("[Glabol form] Preview mode, nothing sent. Payload:", payload);
       setTimeout(finish, 450);
       return;
@@ -909,6 +980,7 @@ a{color:inherit}
     // Send to every configured destination. The visitor moves on as soon as one has it.
     var sends = [];
     if (CFG.CRM_WEBHOOK_URL) sends.push(postToCRM(payload));
+    if (CFG.SHEET_URL) sends.push(postToSheet(payload));
     if (CFG.WEBHOOK_URL) sends.push(postToWebhook(payload));
     Promise.all(sends.map(function(p){ return p.then(function(){ return true; }, function(){ return false; }); }))
       .then(function(results){
@@ -961,6 +1033,21 @@ a{color:inherit}
     });
   }
 
+  // Google Sheet (Apps Script web app). Apps Script sends no CORS headers, so the reply can't be read:
+  // the request counts as sent once the browser has handed it over.
+  function postToSheet(p){
+    var a = p.answers, t = p.tracking;
+    var body = new URLSearchParams({
+      name: p.full_name, phone: p.phone, lead_score: p.lead_score,
+      travel_month: a.travel_month, travellers: a.travellers, budget: a.budget_per_person,
+      passport: a.passport, booking: a.booking_timeline, flying_from: a.flying_from, call_time: a.call_time,
+      ad: p.ad_version, utm_source: t.utm_source, utm_medium: t.utm_medium, utm_campaign: t.utm_campaign,
+      utm_content: t.utm_content, campaign_id: params.campaign_id || "", adset_id: params.adset_id || "",
+      ad_id: params.ad_id || "", fbclid: t.fbclid, fbc: t.fbc, fbp: t.fbp, event_id: p.event_id, page_url: t.page_url
+    });
+    return fetch(CFG.SHEET_URL, { method: "POST", mode: "no-cors", body: body, keepalive: true });
+  }
+
   function postToWebhook(p){
     var body = JSON.stringify(p);
     return fetch(CFG.WEBHOOK_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: body, keepalive: true })
@@ -972,6 +1059,9 @@ a{color:inherit}
   }
 
   function fillSummary(fullName){
+    var waDoneEl = document.getElementById("waDone");
+    if (waDoneEl) waDoneEl.href = waLink("Hi Glabol, I just sent my Vietnam trip details. Name: " + fullName +
+      ". Travelling: " + (answers.travel_month || "-") + ", " + (answers.travellers || "-") + " people.");
     var first = fullName.split(" ")[0];
     if (first) document.getElementById("doneTitle").textContent = "Got it, " + first + ". We're on your Vietnam plan.";
     var rows = [

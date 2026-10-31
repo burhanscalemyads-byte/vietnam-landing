@@ -11,7 +11,9 @@ The settings are in the `window.GLABOL_FORM` block near the top of `index.html`:
 | `CRM_WEBHOOK_URL`, `CRM_API_KEY` | The Glabol CRM intake, with the same values as the Kashmir and Himachal pages. |
 | `DESTINATION` | The destination name the CRM files the lead under ("Vietnam"). |
 | `WEBHOOK_URL` | Optional second destination for the full answers as JSON. Empty for now. With no CRM and no webhook, the page runs in preview mode and sends nothing. |
-| `PIXEL_ID` | Meta Pixel / dataset ID. It fires PageView on load and Lead on submit, with an `eventID` so Pixel and CAPI events deduplicate. Currently `4126422144254829`. |
+| `SHEET_URL` | Google Apps Script web app (`…/exec`) for the "Glabol Vietnam Leads" sheet. Empty skips the sheet. Script: `tools/google-sheet-leads.gs`. |
+| `PIXEL_IDS` | `963901896777793` (Glabol CTWA – CRM) and `4126422144254829` (Glabol_SMA_MetaPixel, used by every *.glabol.com page). |
+| `WHATSAPP_NUMBER` | `919203405171`, used by the WhatsApp buttons. |
 | `FORM_NAME` | A label sent with every lead (`vietnam_5n6d_landing_v1`). |
 | `WEBSITE_URL`, `PRIVACY_URL` | The links on the welcome screen and the consent line. |
 
@@ -73,6 +75,27 @@ The line under the button reads "9 quick questions". On 31 Oct the owner removed
 
 **Phones:** a sticky "Get my Vietnam plan" bar appears at the bottom of the welcome screen whenever the main button is scrolled out of view. It hides on the question screens and on desktop.
 
+## Meta events
+
+Both datasets get the same events:
+
+| Event | When | Notes |
+|---|---|---|
+| PageView | Page load | |
+| FormStart (custom) | First tap on "Get my Vietnam plan" | Good for retargeting people who started the form and didn't finish |
+| Contact | Tap on any WhatsApp button | `content_name` says which button: top, welcome or thank-you |
+| Lead | Form submitted | Sent as a direct pixel request with SHA-256 hashed phone (91…), first name, last name, country `in` and external_id (hashed phone), plus `fbp`/`fbc`. The same `eid` (event ID) goes to both datasets and into the Sheet, so a later Conversions API upload can deduplicate. Custom data: `lead_score`, `ad_version`. |
+
+`fbq('init')` can't add user data after the page has loaded, which is why Lead doesn't use `fbq`.
+
+## WhatsApp
+
+- **Topbar:** a WhatsApp chip, icon-only on phones.
+- **Welcome screen:** "Prefer WhatsApp? Chat with us" under the main button.
+- **Thank-you screen:** "Chat with us on WhatsApp" replaces "View website". The message is pre-filled with the visitor's name, travel month and group size.
+
+All three open `wa.me/919203405171`.
+
 ## Leads
 
 Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way the Kashmir and Himachal pages do it. The page sends JSON with an `x-api-key` header, with these fields:
@@ -86,7 +109,7 @@ Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way th
 
 The CRM accepts requests only from `*.glabol.com` pages, so a local test copy can't reach it. If sending fails, the visitor is asked to tap again. If it fails a second time, they're let through and the lead is logged in the browser console.
 
-`WEBHOOK_URL` is an optional second destination for the full JSON payload, such as a Google Sheet script. It is not set up yet.
+Leads also go to the Google Sheet when `SHEET_URL` is set (URL-encoded POST, `no-cors`). `WEBHOOK_URL` remains an optional third destination for the full JSON payload.
 
 ## Hosting: vietnam-trip.glabol.com
 
