@@ -56,6 +56,21 @@ Each Vietnam ad links to its own version of the welcome screen, so the page repe
   - "Landing page version: Warning post (v=warning)" at the end of the CRM message
   - `ad_version` on the Meta Pixel Lead event, plus the version in `content_name`
 
+## Welcome-screen pointers (31 Oct 2026)
+
+Every version, including the default, shows the same four pointers. Each one answers a common complaint about other companies' Vietnam packages, and the owner confirmed on 31 Oct 2026 that all four are true on every trip:
+
+| Pointer | Complaint it answers |
+|---|---|
+| **No surprise charges.** Every rupee listed before you pay. | Extra charges on the trip: luggage, minibar, cruise drinks, marked-up tours |
+| **Exact hotel names** in writing. No "or similar". | Hotel swapped for a different property; vouchers refused before the trip |
+| **Veg and Jain meals** arranged before you fly. | "No onion, no garlic" requests ignored; almost no veg food on cruises |
+| **One WhatsApp contact** from booking to your flight home. | "No one ever replies" after payment; constant follow-ups |
+
+The small line under the button reads "Pay in parts · International flights extra · 9 quick questions". It answers the fear of paying the full amount months ahead.
+
+**Phones:** a sticky "Get my Vietnam plan" bar appears at the bottom of the welcome screen whenever the main button is scrolled out of view. It hides on the question screens and on desktop.
+
 ## Leads
 
 Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way the Kashmir and Himachal pages do it. The page sends JSON with an `x-api-key` header, with these fields:

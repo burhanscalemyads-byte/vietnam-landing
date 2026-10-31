@@ -221,9 +221,12 @@ a{color:inherit}
   -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
   color:rgba(255,255,255,.95);
 }
-.checks{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:10px}
+.checks{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:9px}
+@media (max-width:999px){.welcome-photo{aspect-ratio:16/9}}
 .checks li{display:flex;gap:10px;align-items:flex-start;font-size:16px;color:rgba(255,255,255,.9)}
 .checks svg{flex:none;margin-top:2px}
+.checks li b{color:#fff;font-weight:600}
+.checks li span{text-wrap:pretty}
 .facts{
   margin:22px 0 0;
   display:grid;grid-template-columns:repeat(3,1fr);
@@ -253,6 +256,15 @@ a{color:inherit}
 .cta:focus-visible,.opt:focus-visible,.btn-ok:focus-visible,.nav-btn:focus-visible,.link-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
 .cta-ico{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
 .cta[disabled]{opacity:.7;cursor:progress}
+/* Phone-only sticky button: shows while the main button is scrolled out of view on the welcome screen */
+.sticky-cta{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:center;
+  padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg,rgba(43,21,16,0),rgba(43,21,16,.92) 34%,var(--ink) 100%);
+  transform:translateY(110%);transition:transform .25s ease;pointer-events:none}
+.sticky-cta.on{transform:none;pointer-events:auto}
+.sticky-cta .cta{width:100%;max-width:520px;justify-content:space-between}
+@media (min-width:1000px){.sticky-cta{display:none}}
+@media (prefers-reduced-motion:reduce){.sticky-cta{transition:none}}
 .reviews-note{font-size:14px;color:rgba(255,255,255,.9);line-height:1.3}
 .reviews-note b{font-family:var(--head)}
 .fine{margin:14px 0 0;font-size:13px;color:var(--faint)}
@@ -448,9 +460,10 @@ a{color:inherit}
         </figure>
 
         <ul class="checks" id="welcomeChecks">
-          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Day-by-day 5N/6D Vietnam itinerary</li>
-          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Full cost for your dates and group</li>
-          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>What's included, and what's not, before you pay</li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>No surprise charges.</b> Every rupee listed before you&nbsp;pay.</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Exact hotel names</b> in writing. No&nbsp;“or&nbsp;similar”.</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>Veg and Jain meals</b> arranged before you&nbsp;fly.</span></li>
+          <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>One WhatsApp contact</b> from booking to your flight&nbsp;home.</span></li>
         </ul>
 
         <div class="facts" role="list">
@@ -465,7 +478,7 @@ a{color:inherit}
           </button>
           <span class="reviews-note"><b>1,600+</b><br>reviews</span>
         </div>
-        <p class="fine">International flights extra · 9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
+        <p class="fine">Pay in parts · International flights extra · 9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
       </section>
 
       <!-- Questions are added here by the script -->
@@ -505,6 +518,12 @@ a{color:inherit}
   </aside>
 </div>
 
+<div class="sticky-cta" id="stickyCta" aria-hidden="true">
+  <button class="cta" type="button" tabindex="-1" id="stickyBtn">Get my Vietnam plan
+    <span class="cta-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="#2B1510" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  </button>
+</div>
+
 <div class="preview-note" id="previewNote" hidden><b>Preview mode.</b> Answers aren't sent anywhere until WEBHOOK_URL is set.</div>
 
 <div class="visually-hidden" aria-live="polite" id="live"></div>
@@ -524,28 +543,24 @@ a{color:inherit}
       label: "Breaking news (brush)", badge: "Breaking",
       title: ["The Vietnam deal", "travellers are talking about."],
       sub: "5N/6D across Hanoi and Da Nang, from ₹40,999 per person.",
-      checks: ["Day-by-day 5N/6D itinerary", "Full cost for your dates, line by line", "4.5★ on Google from 1,600+ reviews"],
       photo: BRIDGE
     },
     news: {
       label: "Breaking news (Nov–Jan)", badge: "Breaking news",
       title: ["The winter Vietnam deal", "travellers are talking about."],
       sub: "Going Nov–Jan? 900+ people asked us about this trip since August.",
-      checks: ["Day-by-day plan for your Nov–Jan dates", "Full cost for your dates and group", "What's included and what's not, upfront"],
       photo: BRIDGE
     },
     dontbook: {
       label: "Don't book with us",
       title: ["Not the same itinerary", "everyone else gets."],
       sub: "Send us your dates. We'll plan your 5N/6D day by day around them, with the full cost.",
-      checks: ["A day-by-day plan built for your dates", "Full cost for your group, line by line", "What's included and what's not, upfront"],
       photo: BRIDGE
     },
     search: {
       label: "Search suggestions",
       title: ["Searched Vietnam lately?", "Get all five answered."],
       sub: "Cost, itinerary, visa, weather, package. Send your dates and we'll answer all five.",
-      checks: ["Cost: the full price for your dates", "Itinerary: a day-by-day 5N/6D plan", "Visa and weather for your month"],
       photo: { mobile: "assets/vietnam-ha-long-karst.jpg", side: "assets/vietnam-ha-long-deck.jpg",
                alt: "Limestone karsts rising from Ha Long Bay, Vietnam", chip: "Ha Long Bay, Vietnam", sideChip: "Glabol travellers on Ha Long Bay" }
     },
@@ -553,7 +568,6 @@ a{color:inherit}
       label: "Warning post", badge: "Warning", badgeClass: "warn",
       title: ["Don't pay until you see", "the full cost, line by line."],
       sub: "Send your dates. We'll send a 5N/6D plan with every cost listed.",
-      checks: ["Full cost for your dates, line by line", "What's included and what's not, upfront", "Day-by-day 5N/6D itinerary"],
       photo: BRIDGE
     }
   };
@@ -573,7 +587,7 @@ a{color:inherit}
       });
       document.getElementById("welcomeSub").textContent = v.sub;
       var items = document.querySelectorAll("#welcomeChecks li");
-      v.checks.forEach(function(t, i){
+      (v.checks || []).forEach(function(t, i){
         if (!items[i]) return;
         var svg = items[i].querySelector("svg");
         items[i].textContent = ""; if (svg) items[i].appendChild(svg);
@@ -806,6 +820,24 @@ a{color:inherit}
 
   /* ---------- Events ---------- */
   document.getElementById("startBtn").addEventListener("click", function(){ go(1, "next"); });
+
+  /* Sticky button on phones: visible only on the welcome screen while the main button is out of view */
+  (function(){
+    var bar = document.getElementById("stickyCta"), main = document.getElementById("startBtn");
+    var welcome = document.getElementById("screen-0");
+    if (!bar || !("IntersectionObserver" in window)) return;
+    var mainVisible = true;
+    function sync(){
+      var on = !mainVisible && !welcome.hidden && window.innerWidth < 1000;
+      bar.classList.toggle("on", on);
+      bar.setAttribute("aria-hidden", on ? "false" : "true");
+      document.getElementById("stickyBtn").tabIndex = on ? 0 : -1;
+    }
+    new IntersectionObserver(function(entries){ mainVisible = entries[0].isIntersecting; sync(); }, { threshold: 0.6 }).observe(main);
+    new MutationObserver(sync).observe(welcome, { attributes: true, attributeFilter: ["hidden"] });
+    window.addEventListener("resize", sync);
+    document.getElementById("stickyBtn").addEventListener("click", function(){ bar.classList.remove("on"); main.click(); });
+  })();
   prevBtn.addEventListener("click", prev);
   nextBtn.addEventListener("click", next);
 
