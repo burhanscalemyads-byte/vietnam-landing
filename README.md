@@ -38,14 +38,15 @@ Along with the answers, the page sends:
 
 ## One page for every ad
 
-Every Vietnam ad lands on the same page. The welcome screen pulls in something from each ad:
+Every Vietnam ad lands on the same page. The welcome screen has:
 
-| Ad | What the visitor recognises on the page |
-|---|---|
-| 01 Breaking Brush, 02 Breaking News | Kicker "900+ people asked us about this trip since August"; headline "The Vietnam trip travellers are talking about."; Golden Bridge photo |
-| 03 Don't Book With Us | Subline "Planned for your dates, not copied from a blog." |
-| 04 Search Suggestions | "Searched these? We answer all five for your dates." with Cost · Itinerary · Visa · Weather · Package |
-| 05 Warning Post | "Every rupee shown before you pay." and the "No surprise charges" pointer |
+- **Headline:** "The Vietnam trip travellers are talking about."
+- **Photo:** the Golden Bridge.
+- **The four promises.**
+- **Price and rating bar.**
+- **Button:** "Get my Vietnam plan", with "Pay in parts · International flights extra" underneath.
+
+On 31 Oct the owner removed the "900+ people asked" kicker, the subheadline and the "Searched these?" strip.
 
 **Tracking which ad sent the lead:** the page content doesn't change, but the link can still carry a tag. Use `?v=` with one of these values:
 

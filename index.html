@@ -178,16 +178,6 @@ a{color:inherit}
   text-wrap:balance;
 }
 .welcome h1 span{display:block}
-/* Social-proof kicker above the headline */
-.kicker{display:inline-flex;align-items:center;gap:9px;margin:18px 0 -4px;padding:7px 13px 7px 11px;border-radius:999px;
-  background:rgba(43,21,16,.28);border:1.5px solid rgba(255,255,255,.3);font-family:var(--head);font-weight:600;font-size:13.5px;color:#fff}
-.kicker i{width:8px;height:8px;border-radius:50%;background:var(--lantern);box-shadow:0 0 0 4px rgba(200,51,30,.28)}
-/* "Searched these?" strip: the five things people search, answered for their dates */
-.answers{margin:16px 0 0;padding:12px 14px;border-radius:16px;background:var(--glass);border:1px solid rgba(255,255,255,.14)}
-.answers p{margin:0;font-size:13.5px;color:rgba(255,255,255,.82)}
-.answers p b{color:#fff;font-weight:600}
-.answers ul{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
-.answers li{font-size:13px;font-weight:600;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.1);color:#fff}
 .welcome h1:focus{outline:none}
 .sub{
   font-family:var(--head);font-weight:500;
@@ -444,9 +434,7 @@ a{color:inherit}
     <main class="stage" id="stage">
       <!-- Welcome -->
       <section class="screen welcome" id="screen-0" aria-labelledby="welcomeTitle">
-        <span class="kicker"><i></i>900+ people asked us about this trip since August</span>
         <h1 id="welcomeTitle" tabindex="-1"><span>The Vietnam trip</span> <span>travellers are talking about.</span></h1>
-        <p class="sub" id="welcomeSub">Planned for your dates, not copied from a blog. Every rupee shown before you&nbsp;pay.</p>
 
         <figure class="welcome-photo">
           <picture>
@@ -455,11 +443,6 @@ a{color:inherit}
           </picture>
           <figcaption class="photo-chip">Golden Bridge, Ba Na Hills</figcaption>
         </figure>
-
-        <div class="answers">
-          <p><b>Searched these?</b> We answer all five for your dates.</p>
-          <ul><li>Cost</li><li>Itinerary</li><li>Visa</li><li>Weather</li><li>Package</li></ul>
-        </div>
 
         <ul class="checks" id="welcomeChecks">
           <li><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="10" fill="#C8331E"/><path d="M5.8 10.3l2.7 2.6 5.7-5.8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>No surprise charges.</b> Every rupee listed before you&nbsp;pay.</span></li>
