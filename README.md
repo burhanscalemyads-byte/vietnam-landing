@@ -11,7 +11,7 @@ The settings are in the `window.GLABOL_FORM` block near the top of `index.html`:
 | `CRM_WEBHOOK_URL`, `CRM_API_KEY` | The Glabol CRM intake, with the same values as the Kashmir and Himachal pages. |
 | `DESTINATION` | The destination name the CRM files the lead under ("Vietnam"). |
 | `WEBHOOK_URL` | Optional second destination for the full answers as JSON. Empty for now. With no CRM and no webhook, the page runs in preview mode and sends nothing. |
-| `SHEET_URL` | Google Apps Script web app (`…/exec`) for the "Glabol Vietnam Leads" sheet. Empty skips the sheet. Script: `tools/google-sheet-leads.gs`. |
+| `SHEET_URL` | Google Apps Script web app for the "Glabol Vietnam Leads" sheet (owner's Google account, sheet ID `1FaocFcDgh23nhL4XZhRbFtEDL-rmvU9c4Gb02nHG9fI`). Each lead adds a row to the "Leads" tab and emails the sheet owner. Script: `tools/google-sheet-leads.gs`. When updating it, use Deploy → Manage deployments → New version, so the URL stays the same. |
 | `PIXEL_IDS` | `963901896777793` (Glabol CTWA – CRM) and `4126422144254829` (Glabol_SMA_MetaPixel, used by every *.glabol.com page). |
 | `WHATSAPP_NUMBER` | `919203405171`, used by the WhatsApp buttons. |
 | `FORM_NAME` | A label sent with every lead (`vietnam_5n6d_landing_v1`). |
