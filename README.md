@@ -36,29 +36,30 @@ Along with the answers, the page sends:
 - `fbclid` from the URL, plus the `fbc` and `fbp` values
 - The page URL and a timestamp
 
-## Ad-matched versions
+## One page for every ad
 
-Each Vietnam ad links to its own version of the welcome screen, so the page repeats the promise the person just clicked on. The questions and the form stay the same.
+Every Vietnam ad lands on the same page. The welcome screen pulls in something from each ad:
 
-| Ad | Link | What changes |
-|---|---|---|
-| 01 Breaking Brush | `https://vietnam-trip.glabol.com/?v=brush` | "Breaking" label, "The Vietnam deal travellers are talking about.", Golden Bridge |
-| 02 Breaking News Nov–Jan | `https://vietnam-trip.glabol.com/?v=news` | "Breaking news" label, "The winter Vietnam deal…", 900+ enquiries line, Golden Bridge |
-| 03 Don't Book With Us | `https://vietnam-trip.glabol.com/?v=dontbook` | "Not the same itinerary everyone else gets.", Golden Bridge |
-| 04 Search Suggestions | `https://vietnam-trip.glabol.com/?v=search` | "Searched Vietnam lately? Get all five answered.", Ha Long Bay |
-| 05 Warning Post | `https://vietnam-trip.glabol.com/?v=warning` | "Warning" label, "Don't pay until you see the full cost, line by line.", Golden Bridge |
-| Anything else | `https://vietnam-trip.glabol.com/` | The default page |
+| Ad | What the visitor recognises on the page |
+|---|---|
+| 01 Breaking Brush, 02 Breaking News | Kicker "900+ people asked us about this trip since August"; headline "The Vietnam trip travellers are talking about."; Golden Bridge photo |
+| 03 Don't Book With Us | Subline "Planned for your dates, not copied from a blog." |
+| 04 Search Suggestions | "Searched these? We answer all five for your dates." with Cost · Itinerary · Visa · Weather · Package |
+| 05 Warning Post | "Every rupee shown before you pay." and the "No surprise charges" pointer |
 
-- **Meta setup:** put the link in the ad's Website URL. Keep the UTM tags in the URL parameters field as usual. `utm_content=<key>` also selects a version if `v` is missing.
-- **Changing the copy:** edit `VARIANTS` near the top of the main script in `index.html`.
-- **Lead tagging:** every lead carries its version:
-  - `ad_version` in the JSON payload
-  - "Landing page version: Warning post (v=warning)" at the end of the CRM message
-  - `ad_version` on the Meta Pixel Lead event, plus the version in `content_name`
+**Tracking which ad sent the lead:** the page content doesn't change, but the link can still carry a tag. Use `?v=` with one of these values:
+
+- `?v=brush`
+- `?v=news`
+- `?v=dontbook`
+- `?v=search`
+- `?v=warning`
+
+`utm_content` also works if `v` is missing. The tag is added to the end of the CRM message ("Ad: warning") and to the Meta Pixel Lead event. Untagged links show "Ad: not tagged".
 
 ## Welcome-screen pointers (31 Oct 2026)
 
-Every version, including the default, shows the same four pointers. Each one answers a common complaint about other companies' Vietnam packages, and the owner confirmed on 31 Oct 2026 that all four are true on every trip:
+The page shows four pointers. Each one answers a common complaint about other companies' Vietnam packages, and the owner confirmed on 31 Oct 2026 that all four are true on every trip:
 
 | Pointer | Complaint it answers |
 |---|---|
