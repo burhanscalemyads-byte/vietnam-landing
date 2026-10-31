@@ -44,7 +44,7 @@ Every Vietnam ad lands on the same page. The welcome screen has:
 - **Photo:** the Golden Bridge.
 - **The four promises.**
 - **Price and rating bar.**
-- **Button:** "Get my Vietnam plan", with "Pay in parts · International flights extra" underneath.
+- **Button:** "Get my Vietnam plan". On phones it is full-width and taller (66px), with "1,600+ reviews on Google" underneath.
 
 On 31 Oct the owner removed the "900+ people asked" kicker, the subheadline and the "Searched these?" strip.
 
@@ -69,7 +69,7 @@ The page shows four pointers. Each one answers a common complaint about other co
 | **Veg and Jain meals** arranged before you fly. | "No onion, no garlic" requests ignored; almost no veg food on cruises |
 | **One WhatsApp contact** from booking to your flight home. | "No one ever replies" after payment; constant follow-ups |
 
-The small line under the button reads "Pay in parts · International flights extra · 9 quick questions". It answers the fear of paying the full amount months ahead.
+The line under the button reads "9 quick questions". On 31 Oct the owner removed "Pay in parts" and "International flights extra" from it. The flights note is still in the budget question ("Not counting international flights").
 
 **Phones:** a sticky "Get my Vietnam plan" bar appears at the bottom of the welcome screen whenever the main button is scrolled out of view. It hides on the question screens and on desktop.
 

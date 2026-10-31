@@ -228,6 +228,15 @@ a{color:inherit}
 .facts b{display:block;font-family:var(--head);font-weight:700;font-size:clamp(18px,5vw,24px);letter-spacing:-.02em;line-height:1.1}
 .facts small{display:block;font-size:12px;color:var(--muted);margin-top:3px}
 .cta-row{display:flex;align-items:center;gap:18px;margin:22px 0 0;flex-wrap:wrap}
+/* Phones: a full-width, taller button */
+@media (max-width:999px){
+  .cta-row{flex-direction:column;align-items:stretch;gap:10px}
+  .cta-row .cta,.sticky-cta .cta{width:100%;min-height:66px;font-size:20px;font-weight:700;padding:10px 10px 10px 26px;justify-content:space-between}
+  .cta-row .cta .cta-ico,.sticky-cta .cta .cta-ico{width:48px;height:48px}
+  .reviews-note{text-align:center}
+  .reviews-note br{display:none}
+  .fine{text-align:center}
+}
 .cta{
   display:inline-flex;align-items:center;gap:12px;
   border:0;cursor:pointer;
@@ -461,9 +470,9 @@ a{color:inherit}
           <button class="cta" id="startBtn" type="button">Get my Vietnam plan
             <span class="cta-ico" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M4 12L12 4M5.5 4H12v6.5" fill="none" stroke="#2B1510" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </button>
-          <span class="reviews-note"><b>1,600+</b><br>reviews</span>
+          <span class="reviews-note"><b>1,600+</b><br> reviews on Google</span>
         </div>
-        <p class="fine">Pay in parts · International flights extra · 9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
+        <p class="fine">9 quick questions <span class="hint">· press <b>Enter ↵</b></span></p>
       </section>
 
       <!-- Questions are added here by the script -->
