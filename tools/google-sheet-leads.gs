@@ -16,14 +16,17 @@
 const SHEET_NAME = "Leads";
 const EXTRA_ALERT_EMAILS = "";   // more people to alert, comma-separated
 const EMAIL_ALERTS = true;
+const AS_TEXT = ["travel_month", "travellers", "call_time"];   // stop Sheets turning these into dates or numbers
 
 // Sheet header → field sent by the page. Columns are matched by header, so you can reorder them
-// or add your own (Status, Notes). Missing ones are added on the right: hide, don't delete.
+// or add your own (Status, Notes). A missing one is added next to the column listed before it:
+// hide columns you don't want, don't delete them.
 const COLUMNS = [
   ["Timestamp", "timestamp"],
   ["Name", "name"],
   ["Phone", "phone"],
   ["Lead score", "lead_score"],
+  ["CRM", "crm_status"],
   ["Travel month", "travel_month"],
   ["Travellers", "travellers"],
   ["Budget per person", "budget"],
@@ -70,7 +73,9 @@ function doPost(e) {
       if (key === "timestamp") return new Date();
       if (key === "name") return safe_(name);
       if (key === "phone") return "'+91" + digits;
-      return safe_(clean_(p[key]).slice(0, 500));
+      const v = clean_(p[key]).slice(0, 500);
+      if (AS_TEXT.indexOf(key) > -1 && v) return "'" + v;   // keep "Dec 2026" and "2" as typed
+      return safe_(v);
     });
     sh.appendRow(row);
   } finally {
@@ -89,8 +94,14 @@ function getSheet_() {
   const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
   const last = sh.getLastColumn();
   const head = last ? sh.getRange(1, 1, 1, last).getValues()[0] : [];
-  COLUMNS.forEach(function (c) {
-    if (head.indexOf(c[0]) === -1) {
+  COLUMNS.forEach(function (c, i) {
+    if (head.indexOf(c[0]) > -1) return;
+    const prev = i > 0 ? head.indexOf(COLUMNS[i - 1][0]) : -1;   // 0-based, -1 if not there
+    if (prev > -1 && prev < head.length - 1) {
+      sh.insertColumnAfter(prev + 1);
+      head.splice(prev + 1, 0, c[0]);
+      sh.getRange(1, prev + 2).setValue(c[0]).setFontWeight("bold");
+    } else {
       head.push(c[0]);
       sh.getRange(1, head.length).setValue(c[0]).setFontWeight("bold");
     }
@@ -110,6 +121,7 @@ function alert_(p, name, digits) {
       "Name: " + name,
       "Phone: +91 " + digits + "   WhatsApp: " + wa,
       "Lead score: " + clean_(p.lead_score),
+      "CRM: " + (clean_(p.crm_status) || "-"),
       "Travel month: " + clean_(p.travel_month) + "   Travellers: " + clean_(p.travellers),
       "Budget per person: " + clean_(p.budget),
       "Passport: " + clean_(p.passport) + "   Booking: " + clean_(p.booking),
@@ -120,7 +132,8 @@ function alert_(p, name, digits) {
     ];
     MailApp.sendEmail({
       to: to,
-      subject: "New Vietnam lead: " + name + " (" + clean_(p.travel_month) + ", " + clean_(p.lead_score) + ")",
+      subject: (/^NOT ADDED/.test(clean_(p.crm_status)) ? "[Not in CRM] " : "") +
+        "New Vietnam lead: " + name + " (" + clean_(p.travel_month) + ", " + clean_(p.lead_score) + ")",
       body: lines.join("\n"),
       name: "Glabol leads"
     });

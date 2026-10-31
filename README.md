@@ -105,11 +105,19 @@ Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way th
 - `destination`: "Vietnam"
 - `host`
 - `source`: Google Ads, Meta Ads or Website
-- `message`, which carries all the answers and the lead score
+- `message`: one compact line, at most 160 characters, for example `Vietnam 5N/6D | Dec 2026 | 2 pax | ₹40–60k pp | Passport: yes | Book: this month | From Mumbai | Call 4pm–7pm | hot | Ad: brush`
 
-The CRM accepts requests only from `*.glabol.com` pages, so a local test copy can't reach it. If sending fails, the visitor is asked to tap again. If it fails a second time, they're let through and the lead is logged in the browser console.
+**CRM message limit.** On 31 Oct 2026 the CRM refused a 235-character message with HTTP 500 `Data too long for column 'source_detail' at row 1`. Messages of about 100 characters went through. The page therefore keeps the line short. If the CRM still refuses it (any 4xx/5xx reply), the page retries once with the short Kashmir-style line ("Interested in Vietnam package. Travel month: X. Travellers: Y."). If the CRM developer widens `source_detail` (TEXT, or VARCHAR(1000)), the full line can come back.
 
-Leads also go to the Google Sheet when `SHEET_URL` is set (URL-encoded POST, `no-cors`). `WEBHOOK_URL` remains an optional third destination for the full JSON payload.
+The CRM accepts requests only from `*.glabol.com` pages, so a local test copy can't reach it. If every destination fails, the visitor is asked to tap again. If it fails a second time, they're let through and the lead is logged in the browser console.
+
+Leads also go to the Google Sheet when `SHEET_URL` is set (URL-encoded POST, `no-cors`). The Sheet is sent after the CRM replies, so its **CRM** column shows the result:
+
+- `Added, lead #10965`
+- `Added (short message), lead #…`
+- `NOT ADDED: HTTP 500 …`
+
+A lead the CRM refused is still in the Sheet. Its email alert subject starts with "[Not in CRM]". `WEBHOOK_URL` remains an optional third destination for the full JSON payload.
 
 ## Hosting: vietnam-trip.glabol.com
 

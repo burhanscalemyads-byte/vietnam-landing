@@ -977,10 +977,17 @@ a{color:inherit}
       return;
     }
 
-    // Send to every configured destination. The visitor moves on as soon as one has it.
+    // Send to every configured destination. The visitor moves on once any one of them has it.
+    // The Sheet goes after the CRM so its row can say whether the CRM took the lead.
     var sends = [];
-    if (CFG.CRM_WEBHOOK_URL) sends.push(postToCRM(payload));
-    if (CFG.SHEET_URL) sends.push(postToSheet(payload));
+    var crm = CFG.CRM_WEBHOOK_URL ? postToCRM(payload) : null;
+    if (crm) sends.push(crm);
+    if (CFG.SHEET_URL) {
+      sends.push(crm
+        ? crm.then(function(s){ return postToSheet(payload, s); },
+                   function(err){ return postToSheet(payload, "NOT ADDED: " + err.message); })
+        : postToSheet(payload, "CRM not set up"));
+    }
     if (CFG.WEBHOOK_URL) sends.push(postToWebhook(payload));
     Promise.all(sends.map(function(p){ return p.then(function(){ return true; }, function(){ return false; }); }))
       .then(function(results){
@@ -1000,16 +1007,28 @@ a{color:inherit}
     if (/facebook|instagram|meta|^fb$|^ig$/.test(s) || (!s && params.fbclid)) return "Meta Ads";
     return "Website";
   }
-  function postToCRM(p){
-    var a = p.answers;
-    var message = "Interested in " + (CFG.DESTINATION || "Vietnam") + " package (5N/6D). " +
-      "Travel month: " + (a.travel_month || "-") + ". Travellers: " + (a.travellers || "-") + ". " +
-      "Budget per person: " + (a.budget_per_person || "-") + ". Passport: " + (a.passport || "-") + ". " +
-      "Booking: " + (a.booking_timeline || "-") + ". Flying from: " + (a.flying_from || "-") + ". " +
-      "Best time to call: " + (a.call_time || "-") + ". Lead score: " + p.lead_score + "." +
-      " Ad: " + (AD_KEY || "not tagged") + ".";
+  // The CRM stores the message in a short column: anything much over 200 characters is refused with
+  // HTTP 500 "Data too long for column 'source_detail'". So the CRM gets a compact line (max 160
+  // characters), and the full answers go to the Google Sheet.
+  var SHORT = {
+    "Just me": "1", "6 or more": "6+",
+    "Under ₹40,000": "under ₹40k", "₹40,000–₹60,000": "₹40–60k", "₹60,000–₹90,000": "₹60–90k", "Above ₹90,000": "₹90k+",
+    "Yes, all set": "yes", "Someone is applying or renewing": "applying", "Not yet": "no",
+    "This week": "this week", "This month": "this month", "In 1–3 months": "1–3 months", "Just checking prices": "checking prices"
+  };
+  function sh(v){ return SHORT[v] || v || "-"; }
+  function crmMessage(p, minimal){
+    var a = p.answers, ad = AD_KEY || "not tagged";
+    var m = minimal
+      ? "Interested in Vietnam package. Travel month: " + (a.travel_month || "-") + ". Travellers: " + (a.travellers || "-") + "."
+      : "Vietnam 5N/6D | " + (a.travel_month || "-") + " | " + sh(a.travellers) + " pax | " + sh(a.budget_per_person) + " pp" +
+        " | Passport: " + sh(a.passport) + " | Book: " + sh(a.booking_timeline) + " | From " + (a.flying_from || "-").slice(0, 14) +
+        " | Call " + (a.call_time || "-") + " | " + p.lead_score + " | Ad: " + ad;
+    return m.length > 160 ? m.slice(0, 159) + "…" : m;
+  }
+  function crmPost(p, minimal, ms){
     var ctrl = window.AbortController ? new AbortController() : null;
-    var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 8000) : null;
+    var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, ms) : null;
     return fetch(CFG.CRM_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": CFG.CRM_API_KEY || "" },
@@ -1018,26 +1037,45 @@ a{color:inherit}
         phone: p.phone,
         email: "",
         destination: CFG.DESTINATION || "Vietnam",
-        message: message,
+        message: crmMessage(p, minimal),
         host: location.hostname,
         source: crmSource()
       }),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function(res){
       if (timer) clearTimeout(timer);
-      if (!res.ok) throw new Error("CRM returned " + res.status);
+      return res.text().then(function(txt){
+        var j = {}; try { j = JSON.parse(txt); } catch (e) {}
+        if (!res.ok) throw new Error("HTTP " + res.status + (j.message ? " " + j.message : ""));
+        return (j.data && j.data.leadId) ? "lead #" + j.data.leadId : "HTTP " + res.status;
+      });
     }, function(err){
       if (timer) clearTimeout(timer);
+      throw new Error(err && err.name === "AbortError" ? "no reply in " + (ms / 1000) + "s" : "network error");
+    });
+  }
+  // Resolves to a status line for the Sheet ("Added, lead #10965"); rejects if the CRM didn't take it.
+  // If the CRM refuses the full line (a 4xx/5xx reply), it tries once more with the short Kashmir-style line.
+  function postToCRM(p){
+    return crmPost(p, false, 8000).then(function(id){ return "Added, " + id; }, function(err){
+      if (!/^HTTP [45]/.test(err.message)) throw err;
+      if (window.console) console.warn("[Glabol form] CRM refused the full line, retrying short:", err.message);
+      return crmPost(p, true, 6000).then(
+        function(id){ return "Added (short message), " + id; },
+        function(err2){ throw new Error(err.message + "; retry: " + err2.message); });
+    }).catch(function(err){
       if (window.console) console.error("[Glabol form] CRM post failed:", err);
       throw err;
     });
   }
 
   // Google Sheet (Apps Script web app). Apps Script sends no CORS headers, so the reply can't be read:
-  // the request counts as sent once the browser has handed it over.
-  function postToSheet(p){
+  // the request counts as sent once the browser has handed it over. The "CRM" column records what the
+  // CRM said, so a lead the CRM refused still shows up (and is flagged) in the Sheet.
+  function postToSheet(p, crmStatus){
     var a = p.answers, t = p.tracking;
     var body = new URLSearchParams({
+      crm_status: crmStatus || "",
       name: p.full_name, phone: p.phone, lead_score: p.lead_score,
       travel_month: a.travel_month, travellers: a.travellers, budget: a.budget_per_person,
       passport: a.passport, booking: a.booking_timeline, flying_from: a.flying_from, call_time: a.call_time,
