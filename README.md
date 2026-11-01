@@ -84,9 +84,9 @@ Both datasets get the same events:
 | PageView | Page load | |
 | FormStart (custom) | First tap on "Get my Vietnam plan" | Good for retargeting people who started the form and didn't finish |
 | Contact | Tap on any WhatsApp button | `content_name` says which button: top, welcome or thank-you |
-| Lead | Form submitted | Sent as a direct pixel request with SHA-256 hashed phone (91…), first name, last name, country `in` and external_id (hashed phone), plus `fbp`/`fbc`. The same `eid` (event ID) goes to both datasets and into the Sheet, so a later Conversions API upload can deduplicate. Custom data: `lead_score`, `ad_version`. |
+| Lead | The CRM or the Sheet has the lead | Sent through `fbq`, so Meta Pixel Helper and Events Manager → Test events show it. For each dataset, `fbq('init', id, userData)` adds SHA-256 hashed phone (91…), first name, last name, country `in` and external_id (hashed phone), then `fbq('trackSingle', id, 'Lead', …, {eventID})` sends it. The same event ID goes to both datasets and into the Sheet, so a later Conversions API upload can deduplicate. Custom data: `lead_score`, `ad_version`. A submission that didn't reach the CRM or the Sheet sends no Lead. If an ad blocker stopped fbevents.js, the page sends the Lead as a direct pixel request instead. |
 
-`fbq('init')` can't add user data after the page has loaded, which is why Lead doesn't use `fbq`.
+Until 1 Nov 2026 the Lead went only as a direct pixel request. Meta received it (Events Manager shows Lead from vietnam-trip.glabol.com on 31 Oct in both datasets), but Pixel Helper and Test events couldn't see it. Calling `fbq('init')` again with user data does add it to the next event (checked 1 Nov 2026 on the live page).
 
 ## WhatsApp
 

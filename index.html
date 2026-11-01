@@ -864,8 +864,11 @@ a{color:inherit}
   }
 
   /* ---------- Meta Lead with hashed advanced matching ----------
-     fbq can't take user data after the page has loaded, so the Lead goes out as a pixel request
-     with SHA-256 hashed phone, first and last name, country and external_id (hashed phone). */
+     The Lead goes through fbq, so Meta Pixel Helper and Events Manager's Test events show it.
+     For each dataset: fbq("init", id, userData) adds the SHA-256 hashed phone, first and last name,
+     country and external_id (checked 1 Nov 2026: the next event carries ud[ph], ud[fn] etc.), then
+     fbq("trackSingle", id, "Lead", ..., { eventID }) sends it with the same event ID as the Sheet row.
+     If fbevents.js didn't load (ad blocker), it falls back to a direct pixel request. */
   function sha256(text){
     try {
       return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function(buf){
@@ -880,7 +883,17 @@ a{color:inherit}
     var raw = { ph: "91" + phone10, fn: parts[0] || "", ln: parts.length > 1 ? parts[parts.length - 1] : "", country: "in", external_id: "91" + phone10 };
     var keys = Object.keys(raw).filter(function(k){ return raw[k]; });
     Promise.all(keys.map(function(k){ return sha256(raw[k]); })).then(function(hashes){
+      var ud = {};
+      keys.forEach(function(k, i){ if (hashes[i]) ud[k] = hashes[i]; });
+      var fbqReady = !!(window.fbq && window.fbq.instance && window.fbq.instance.pixelsByID);
       ids.forEach(function(id){
+        if (fbqReady) {
+          try {
+            fbq("init", id, ud);
+            fbq("trackSingle", id, "Lead", custom, { eventID: eventId });
+            return;
+          } catch (e) { /* fall through to the direct request */ }
+        }
         var q = new URLSearchParams({ id: id, ev: "Lead", eid: eventId, dl: location.href, rl: document.referrer || "", ts: String(Date.now()) });
         keys.forEach(function(k, i){ if (hashes[i]) q.append("ud[" + k + "]", hashes[i]); });
         Object.keys(custom).forEach(function(k){ q.append("cd[" + k + "]", custom[k]); });
@@ -953,11 +966,14 @@ a{color:inherit}
       }
     };
 
-    // Meta: Lead to every dataset, same event ID, with hashed phone and name for matching
-    sendLeadPixel(eventId, phone10, fullName, {
-      content_name: "Vietnam 5N6D", content_category: "Vietnam",
-      lead_score: leadScore, ad_version: AD_KEY || "not tagged"
-    });
+    // Meta: Lead to every dataset, same event ID, with hashed phone and name for matching.
+    // Sent once the CRM or the Sheet has the lead, so a submission that didn't go through isn't counted.
+    function fireLead(){
+      sendLeadPixel(eventId, phone10, fullName, {
+        content_name: "Vietnam 5N6D", content_category: "Vietnam",
+        lead_score: leadScore, ad_version: AD_KEY || "not tagged"
+      });
+    }
 
     function finish(){
       fillSummary(fullName);
@@ -986,7 +1002,7 @@ a{color:inherit}
     function decide(ok){
       if (decided) return;
       decided = true;
-      if (ok) return finish();
+      if (ok) { fireLead(); return finish(); }
       // First failure: ask them to tap again. Second failure: let them through rather than trap them.
       sendFailures += 1;
       if (sendFailures >= 2) { if (window.console) console.error("[Glabol form] Lead not delivered:", payload); finish(); }
