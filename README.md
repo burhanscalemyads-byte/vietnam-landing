@@ -86,6 +86,8 @@ Both datasets get the same events:
 | Contact | Tap on any WhatsApp button | `content_name` says which button: top, welcome or thank-you |
 | Lead | The CRM or the Sheet has the lead | Sent through `fbq`, so Meta Pixel Helper and Events Manager → Test events show it. For each dataset, `fbq('init', id, userData)` adds SHA-256 hashed phone (91…), first name, last name, country `in` and external_id (hashed phone), then `fbq('trackSingle', id, 'Lead', …, {eventID})` sends it. The same event ID goes to both datasets and into the Sheet, so a later Conversions API upload can deduplicate. Custom data: `lead_score`, `ad_version`. A submission that didn't reach the CRM or the Sheet sends no Lead. If an ad blocker stopped fbevents.js, the page sends the Lead as a direct pixel request instead. |
 
+**Click ID (fbclid):** when the link has `fbclid`, the page sets the `_fbc` cookie (`fb.1.<ms>.<fbclid>`, on .glabol.com, 90 days) unless the pixel already did. Every Meta event, Lead included, then carries the click ID. The CRM gets `fbclid`/`fbc` (see Leads), and so does the Sheet (fbclid and fbc columns).
+
 Until 1 Nov 2026 the Lead went only as a direct pixel request. Meta received it (Events Manager shows Lead from vietnam-trip.glabol.com on 31 Oct in both datasets), but Pixel Helper and Test events couldn't see it. Calling `fbq('init')` again with user data does add it to the next event (checked 1 Nov 2026 on the live page).
 
 ## WhatsApp
@@ -105,6 +107,7 @@ Every submission is posted to the Glabol CRM (`crm.glabol.com`), the same way th
 - `destination`: "Vietnam"
 - `host`
 - `source`: Google Ads, Meta Ads or Website
+- `fbclid` and `fbc` (Meta click ID), only when the visitor came from a Meta ad. If the CRM refuses that try for any reason, the next tries leave them out, so the extra fields can never cost a lead. Whether the CRM keeps them depends on the CRM.
 - `message`: the same short line as the Kashmir and Himachal pages, at most 86 characters, for example "Interested in Vietnam package. Travel month: Dec 2026. Travellers: 2."
 
 **Why the message is short.** On 31 Oct 2026 the CRM refused a 235-character message with HTTP 500 "Data too long for column 'source_detail' at row 1". Messages of about 100 characters go through. The full answers are in the Google Sheet. If the CRM developer widens `source_detail` (to TEXT, or VARCHAR(1000)), more detail can go in the message.

@@ -856,6 +856,18 @@ a{color:inherit}
   try { new URLSearchParams(location.search).forEach(function(v, k){ params[k] = v; }); } catch (e) {}
   var landedAt = Date.now();
 
+  // fbclid → _fbc cookie, in Meta's format (fb.1.<ms>.<fbclid>), on .glabol.com for 90 days.
+  // The Meta Pixel normally does this itself; setting it here too means every Meta event (Lead
+  // included) carries the click ID even if the pixel's own cookie step didn't run.
+  (function(){
+    var id = params.fbclid;
+    if (!id) return;
+    var cur = getCookie("_fbc");
+    if (cur && cur.split(".").slice(3).join(".") === id) return;   // already this click
+    var host = location.hostname, dom = /(^|\.)glabol\.com$/.test(host) ? "; domain=.glabol.com" : "";
+    try { document.cookie = "_fbc=" + encodeURIComponent("fb.1." + landedAt + "." + id) + dom + "; path=/; max-age=7776000; SameSite=Lax"; } catch (e) {}
+  })();
+
   function makeEventId(){
     var r = "";
     try { var a = new Uint32Array(2); crypto.getRandomValues(a); r = a[0].toString(36) + a[1].toString(36); }
@@ -1040,21 +1052,24 @@ a{color:inherit}
     return "Interested in " + (CFG.DESTINATION || "Vietnam") + " package. Travel month: " + (a.travel_month || "-") +
       ". Travellers: " + (a.travellers || "-") + ".";
   }
-  function crmPost(p, ms){
+  // withClickId adds fbclid and fbc (Meta click ID) as extra fields next to the usual ones.
+  function crmPost(p, ms, withClickId){
     var ctrl = window.AbortController ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, ms) : null;
+    var body = {
+      name: p.full_name.slice(0, 60),
+      phone: p.phone,
+      email: "",
+      destination: CFG.DESTINATION || "Vietnam",
+      message: crmMessage(p),
+      host: location.hostname,
+      source: crmSource()
+    };
+    if (withClickId) { body.fbclid = p.tracking.fbclid || ""; body.fbc = p.tracking.fbc || ""; }
     return fetch(CFG.CRM_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": CFG.CRM_API_KEY || "" },
-      body: JSON.stringify({
-        name: p.full_name.slice(0, 60),
-        phone: p.phone,
-        email: "",
-        destination: CFG.DESTINATION || "Vietnam",
-        message: crmMessage(p),
-        host: location.hostname,
-        source: crmSource()
-      }),
+      body: JSON.stringify(body),
       signal: ctrl ? ctrl.signal : undefined
     }).then(function(res){
       if (timer) clearTimeout(timer);
@@ -1070,16 +1085,21 @@ a{color:inherit}
   }
   // Up to 3 tries, 1.5 s and 4 s apart, when the CRM is down, slow, busy (5xx, 429) or unreachable.
   // A 4xx reply (bad key, bad data) won't change on a retry, so that stops at once.
+  // When the visitor came from a Meta ad, the first try also carries fbclid and fbc. If the CRM refuses
+  // that try for any reason, the next tries send only the usual fields, so the extra fields can never
+  // cost a lead.
   // Resolves to "Added, lead #10965"; rejects with every error if all tries fail (logged in the console).
   var CRM_WAITS = [0, 1500, 4000];
   function postToCRM(p){
     var errors = [];
+    var hasClickId = !!(p.tracking.fbclid || p.tracking.fbc);
     function attempt(n){
-      return wait(CRM_WAITS[n]).then(function(){ return crmPost(p, 8000); }).then(function(id){
+      var withClickId = hasClickId && n === 0;
+      return wait(CRM_WAITS[n]).then(function(){ return crmPost(p, 8000, withClickId); }).then(function(id){
         return "Added, " + id + (n ? " (try " + (n + 1) + ")" : "");
       }, function(err){
         errors.push(err.message);
-        var permanent = /^HTTP 4/.test(err.message) && !/^HTTP 429/.test(err.message);
+        var permanent = !withClickId && /^HTTP 4/.test(err.message) && !/^HTTP 429/.test(err.message);
         if (!permanent && n + 1 < CRM_WAITS.length) {
           if (window.console) console.warn("[Glabol form] CRM try " + (n + 1) + " failed, retrying:", err.message);
           return attempt(n + 1);
