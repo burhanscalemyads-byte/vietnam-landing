@@ -15,22 +15,32 @@
    Vietnam landing page: thank-you page (vietnam-trip.glabol.com/thank-you/)
    ------------------------------------------------------------
    The form sends visitors here once their lead has reached the CRM or the
-   Sheet, with ?eid=<event ID>. This page fires the Meta Lead.
+   Sheet, with ?eid=<event ID>. All tags (Meta, GA4, Google Ads) run in Google
+   Tag Manager, the same container as the Kashmir and Himachal pages. This page
+   has no pixel code; it pushes Kashmir-style dataLayer events:
 
-   - PIXEL_IDS must match index.html.
-   - Lead fires once per event ID: a reload, the back button or a direct
-     visit without ?eid sends PageView only.
-   - The form leaves the hashed phone/name, the visitor's first name and a
-     trip summary in sessionStorage ("glabol_vn_lead"). Nothing personal goes
-     in the link.
+     lead_form_submit     { lead_id, user_data: { phone_number } }  → Meta Lead,
+                          GA4 generate_lead, Google Ads user-provided data
+     thank_you_page_view  { lead_id, transaction_id }               → Google Ads conversion
+
+   Both are pushed once per event ID: a reload, the back button or a direct
+   visit without ?eid pushes nothing. GTM's Meta tags read sessionStorage
+   "bk_lead" (set by the form) for advanced matching.
    ============================================================ */
-window.GLABOL_TY = {
-  PIXEL_IDS: ["963901896777793", "4126422144254829"],   // Glabol CTWA – CRM, Glabol_SMA_MetaPixel
-  WHATSAPP_NUMBER: "919203405171"
-};
+window.GLABOL_TY = { GTM_ID: "GTM-TTXFHSF9", WHATSAPP_NUMBER: "919203405171" };
+</script>
 
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer',window.GLABOL_TY.GTM_ID);</script>
+<!-- End Google Tag Manager -->
+
+<script>
 (function(){
-  var CFG = window.GLABOL_TY;
+  // Pushed after the GTM snippet, so GTM's page-view tags (which set up the Meta datasets) run first.
   function get(store, key){ try { return window[store].getItem(key); } catch (e) { return null; } }
   function set(store, key, val){ try { window[store].setItem(key, val); } catch (e) {} }
 
@@ -45,54 +55,17 @@ window.GLABOL_TY = {
   try { fired = JSON.parse(get("localStorage", "glabol_vn_fired") || "[]"); } catch (e) {}
   if (!Array.isArray(fired)) fired = [];
   var sendLead = !!eid && fired.indexOf(eid) === -1;
-
-  var ud = (data && data.ud) || {};
-  var custom = (data && data.custom) || { content_name: "Vietnam 5N6D", content_category: "Vietnam", ad_version: (q.get("v") || "not tagged") };
   window.__glabolTy = { eid: eid, data: data, sendLead: sendLead };
+  if (!sendLead) return;
 
-  function markFired(){
-    if (!sendLead) return;
-    fired.push(eid);
-    set("localStorage", "glabol_vn_fired", JSON.stringify(fired.slice(-30)));
-  }
-  function cookie(name){
-    var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
-    return m ? decodeURIComponent(m[1]) : "";
-  }
-  // Used only if fbevents.js can't load (ad blocker): send the Lead as a direct pixel request.
-  function directLead(){
-    if (!sendLead) return;
-    (CFG.PIXEL_IDS || []).forEach(function(id){
-      var p = new URLSearchParams({ id: id, ev: "Lead", eid: eid, dl: location.href, rl: document.referrer || "", ts: String(Date.now()) });
-      Object.keys(ud).forEach(function(k){ if (ud[k]) p.append("ud[" + k + "]", ud[k]); });
-      Object.keys(custom).forEach(function(k){ p.append("cd[" + k + "]", custom[k]); });
-      if (cookie("_fbp")) p.append("fbp", cookie("_fbp"));
-      if (cookie("_fbc")) p.append("fbc", cookie("_fbc"));
-      new Image(1, 1).src = "https://www.facebook.com/tr/?" + p.toString();
-    });
-    markFired();
-  }
-
-  var ids = CFG.PIXEL_IDS || [];
-  if (!ids.length) return;
-  // Meta Pixel base code, with an error handler for the fallback above.
-  var n = window.fbq = function(){ n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
-  if (!window._fbq) window._fbq = n;
-  n.push = n; n.loaded = true; n.version = "2.0"; n.queue = [];
-  var t = document.createElement("script");
-  t.async = true;
-  t.src = "https://connect.facebook.net/en_US/fbevents.js";
-  t.onerror = directLead;
-  var s = document.getElementsByTagName("script")[0];
-  s.parentNode.insertBefore(t, s);
-
-  // Hashed phone, first and last name, country and external_id from the form go in at init.
-  ids.forEach(function(id){ fbq("init", id, ud); });
-  fbq("track", "PageView");
-  if (sendLead) {
-    fbq("track", "Lead", custom, { eventID: eid });
-    markFired();
-  }
+  var phone = data && /^\d{10}$/.test(data.phoneDigits || "") ? "+91" + data.phoneDigits : "";
+  var lead = { event: "lead_form_submit", lead_id: eid, lead_score: (data && data.leadScore) || "", ad_version: (data && data.ad) || q.get("v") || "not tagged" };
+  if (phone) lead.user_data = { phone_number: phone };
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push(lead);
+  window.dataLayer.push({ event: "thank_you_page_view", lead_id: eid, transaction_id: eid });
+  fired.push(eid);
+  set("localStorage", "glabol_vn_fired", JSON.stringify(fired.slice(-30)));
 })();
 </script>
 
@@ -174,6 +147,9 @@ a{color:inherit}
 </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TTXFHSF9" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <div class="app">
   <div class="form-side">
     <header class="topbar">
@@ -217,7 +193,7 @@ a{color:inherit}
   var CFG = window.GLABOL_TY, info = window.__glabolTy || {}, d = info.data;
   function esc(v){ return String(v).replace(/[&<>"']/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function waLink(text){ return "https://wa.me/" + (CFG.WHATSAPP_NUMBER || "919203405171") + "?text=" + encodeURIComponent(text); }
-  function contact(where){ try { if (window.fbq) fbq("track", "Contact", { content_name: "WhatsApp " + where, content_category: "Vietnam" }); } catch (e) {} }
+  function contact(where){ try { (window.dataLayer = window.dataLayer || []).push({ event: "whatsapp_click", wa_location: where }); } catch (e) {} }
 
   var top = document.getElementById("waTop"), btn = document.getElementById("waDone");
   top.href = waLink("Hi Glabol, I'm interested in the Vietnam 5N/6D trip.");

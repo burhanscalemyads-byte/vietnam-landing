@@ -32,11 +32,11 @@
    SHEET_URL        Google Apps Script web app (.../exec) that adds each lead
                     as a row in the "Glabol Vietnam Leads" sheet and emails
                     an alert. Leave empty to skip the sheet.
-   PIXEL_IDS        Meta datasets that get the page's events: the Glabol CTWA
-                    CRM dataset and the website pixel used by every
-                    *.glabol.com page. PageView on load, FormStart when the
-                    form opens, Contact on WhatsApp taps. Lead fires on the thank-you page (thank-you/index.html, keep its PIXEL_IDS the same)
-                    (same event ID in both, phone/name hashed for matching).
+   GTM_ID           Google Tag Manager container (same one as the Kashmir and
+                    Himachal pages). All Meta, GA4 and Google Ads tags live in
+                    GTM; the page has no pixel code of its own. It only pushes
+                    dataLayer events: form_start, whatsapp_click, and on the
+                    thank-you page lead_form_submit + thank_you_page_view.
    WHATSAPP_NUMBER  Country code + number, digits only.
    ============================================================ */
 window.GLABOL_FORM = {
@@ -45,7 +45,7 @@ window.GLABOL_FORM = {
   DESTINATION: "Vietnam",
   WEBHOOK_URL: "",
   SHEET_URL: "https://script.google.com/macros/s/AKfycbwsGnt1T295FpMGVZXtsed2uOPqdLs2yJ1AodiJ_3f5lbfLDf2RHhmxcK5Ry95150hG/exec",   // Glabol Vietnam Leads sheet
-  PIXEL_IDS: ["963901896777793", "4126422144254829"],   // Glabol CTWA – CRM, Glabol_SMA_MetaPixel
+  GTM_ID: "GTM-TTXFHSF9",   // Glabol India › glabol.com
   WHATSAPP_NUMBER: "919203405171",
   FORM_NAME: "vietnam_5n6d_landing_v1",
   WEBSITE_URL: "https://glabol.com",
@@ -53,20 +53,13 @@ window.GLABOL_FORM = {
 };
 </script>
 
-<!-- Meta Pixel -->
-<script>
-(function(){
-  var ids = window.GLABOL_FORM.PIXEL_IDS || [];
-  if (!ids.length) return;
-  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
-  document,'script','https://connect.facebook.net/en_US/fbevents.js');
-  ids.forEach(function(id){ fbq('init', id); });
-  fbq('track', 'PageView');
-})();
-</script>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer',window.GLABOL_FORM.GTM_ID);</script>
+<!-- End Google Tag Manager -->
 
 <style>
 :root{
@@ -453,6 +446,9 @@ a{color:inherit}
 </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TTXFHSF9" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <noscript><p style="padding:24px">Please turn on JavaScript to fill in this form.</p></noscript>
 
 <div class="progress" id="progress" aria-hidden="true"><span id="progressBar"></span></div>
@@ -775,7 +771,7 @@ a{color:inherit}
   /* ---------- Events ---------- */
   var formStarted = false;
   document.getElementById("startBtn").addEventListener("click", function(){
-    if (!formStarted) { formStarted = true; try { if (window.fbq) fbq("trackCustom", "FormStart", { content_name: "Vietnam 5N6D" }); } catch (e) {} }
+    if (!formStarted) { formStarted = true; dl({ event: "form_start", form_name: CFG.FORM_NAME || "vietnam_5n6d_landing" }); }
     go(1, "next");
   });
 
@@ -875,31 +871,16 @@ a{color:inherit}
     return "vn_" + Date.now().toString(36) + "_" + r;
   }
 
-  /* ---------- Hashed user data for the Meta Lead ----------
-     The Lead fires on the thank-you page (thank-you/index.html). This hashes the phone (91…), first and
-     last name, country and external_id with SHA-256, so that page can pass them to fbq("init") for
-     matching. Nothing personal goes in the thank-you link. */
-  function sha256(text){
-    try {
-      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function(buf){
-        return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join("");
-      });
-    } catch (e) { return Promise.resolve(""); }
-  }
-  function hashUserData(phone10, fullName){
-    var parts = fullName.toLowerCase().split(" ");
-    var raw = { ph: "91" + phone10, fn: parts[0] || "", ln: parts.length > 1 ? parts[parts.length - 1] : "", country: "in", external_id: "91" + phone10 };
-    var keys = Object.keys(raw).filter(function(k){ return raw[k]; });
-    return Promise.all(keys.map(function(k){ return sha256(raw[k]); })).then(function(hashes){
-      var ud = {};
-      keys.forEach(function(k, i){ if (hashes[i]) ud[k] = hashes[i]; });
-      return ud;
-    });
-  }
+  /* ---------- Google Tag Manager dataLayer ----------
+     The page has no pixel code. GTM (GTM-TTXFHSF9) reads these events:
+       form_start      first tap on "Get my Vietnam plan"
+       whatsapp_click  any WhatsApp button (wa_location: top, welcome, thank-you)
+     lead_form_submit and thank_you_page_view are pushed by the thank-you page. */
+  function dl(obj){ try { (window.dataLayer = window.dataLayer || []).push(obj); } catch (e) {} }
 
   /* ---------- WhatsApp ---------- */
   function waLink(text){ return "https://wa.me/" + (CFG.WHATSAPP_NUMBER || "919203405171") + "?text=" + encodeURIComponent(text); }
-  function trackContact(where){ try { if (window.fbq) fbq("track", "Contact", { content_name: "WhatsApp " + where, content_category: "Vietnam" }); } catch (e) {} }
+  function trackContact(where){ dl({ event: "whatsapp_click", wa_location: where }); }
   ["waTop", "waWelcome"].forEach(function(id){
     var a = document.getElementById(id); if (!a) return;
     a.href = waLink("Hi Glabol, I'm interested in the Vietnam 5N/6D trip.");
@@ -957,26 +938,27 @@ a{color:inherit}
       }
     };
 
-    // Thank-you page: once the lead is in, the visitor goes to thank-you/?eid=<event ID>, and that page
-    // fires the Meta Lead (same event ID as the Sheet row). Their first name, trip summary, WhatsApp text
-    // and hashed phone/name travel in sessionStorage, not in the link.
+    // Thank-you page: once the lead is in, the visitor goes to thank-you/?eid=<event ID>. That page pushes
+    // lead_form_submit and thank_you_page_view to GTM, which fires the Meta Lead, GA4 and Google Ads.
+    // sessionStorage carries what it needs (nothing personal goes in the link):
+    //   bk_lead         { id, firstName, phoneDigits }: the same format as the Kashmir/Himachal pages. GTM's
+    //                   Meta tags read it on thank-you pages for advanced matching (phone, first name).
+    //   glabol_vn_lead  name, trip summary and WhatsApp text for the thank-you screen.
     function goThankYou(){
-      var data = {
-        eid: eventId, t: Date.now(),
-        first: fullName.split(" ")[0],
-        rows: summaryRows(),
-        waText: doneWaText(fullName),
-        custom: { content_name: "Vietnam 5N6D", content_category: "Vietnam", lead_score: leadScore, ad_version: AD_KEY || "not tagged" }
-      };
-      function leave(ud){
-        data.ud = ud || {};
-        try { sessionStorage.setItem("glabol_vn_lead", JSON.stringify(data)); } catch (e) {}
-        location.assign("thank-you/?eid=" + encodeURIComponent(eventId) + (AD_KEY ? "&v=" + encodeURIComponent(AD_KEY) : ""));
-      }
-      Promise.race([hashUserData(phone10, fullName), wait(1500).then(function(){ return {}; })])
-        .then(leave, function(){ leave({}); });
+      try {
+        sessionStorage.setItem("bk_lead", JSON.stringify({ id: eventId, firstName: fullName.split(" ")[0], phoneDigits: phone10 }));
+        sessionStorage.setItem("glabol_vn_lead", JSON.stringify({
+          eid: eventId, t: Date.now(),
+          first: fullName.split(" ")[0],
+          phoneDigits: phone10,
+          rows: summaryRows(),
+          waText: doneWaText(fullName),
+          leadScore: leadScore, ad: AD_KEY || "not tagged"
+        }));
+      } catch (e) {}
+      location.assign("thank-you/?eid=" + encodeURIComponent(eventId) + (AD_KEY ? "&v=" + encodeURIComponent(AD_KEY) : ""));
     }
-    // In-page thank-you screen, with no Meta Lead: preview mode, or a lead that couldn't be sent.
+    // In-page thank-you screen, with no Lead events: preview mode, or a lead that couldn't be sent.
     function finish(){
       fillSummary(fullName);
       go(TOTAL + 1, "next");

@@ -12,7 +12,7 @@ The settings are in the `window.GLABOL_FORM` block near the top of `index.html`:
 | `DESTINATION` | The destination name the CRM files the lead under ("Vietnam"). |
 | `WEBHOOK_URL` | Optional second destination for the full answers as JSON. Empty for now. With no CRM and no webhook, the page runs in preview mode and sends nothing. |
 | `SHEET_URL` | Google Apps Script web app for the "Glabol Vietnam Leads" sheet (owner's Google account, sheet ID `1FaocFcDgh23nhL4XZhRbFtEDL-rmvU9c4Gb02nHG9fI`). Each lead adds a row to the "Leads" tab and emails the sheet owner. Script: `tools/google-sheet-leads.gs`. When updating it, use Deploy → Manage deployments → New version, so the URL stays the same. |
-| `PIXEL_IDS` | `963901896777793` (Glabol CTWA – CRM) and `4126422144254829` (Glabol_SMA_MetaPixel, used by every *.glabol.com page). |
+| `GTM_ID` | `GTM-TTXFHSF9`, the Google Tag Manager container shared with the Kashmir and Himachal pages. All pixels and tags live there (see Tracking). |
 | `WHATSAPP_NUMBER` | `919203405171`, used by the WhatsApp buttons. |
 | `FORM_NAME` | A label sent with every lead (`vietnam_5n6d_landing_v1`). |
 | `WEBSITE_URL`, `PRIVACY_URL` | The links on the welcome screen and the consent line. |
@@ -75,47 +75,45 @@ The line under the button reads "9 quick questions". On 31 Oct the owner removed
 
 **Phones:** a sticky "Get my Vietnam plan" bar appears at the bottom of the welcome screen whenever the main button is scrolled out of view. It hides on the question screens and on desktop.
 
-## Meta events
+## Tracking: Google Tag Manager (from 1 Nov 2026)
 
-Both datasets get the same events:
+The pages contain **no pixel code**. Everything runs in Google Tag Manager container **GTM-TTXFHSF9** (account "Glabol India", container "glabol.com"), the same container the Kashmir and Himachal pages use. The pages only push dataLayer events.
 
-| Event | When | Notes |
+| dataLayer event | Pushed when | What fires in GTM |
 |---|---|---|
-| PageView | Page load | |
-| FormStart (custom) | First tap on "Get my Vietnam plan" | Good for retargeting people who started the form and didn't finish |
-| Contact | Tap on any WhatsApp button | `content_name` says which button: top, welcome or thank-you |
-| Lead | Thank-you page loads after a submission | Fires on **vietnam-trip.glabol.com/thank-you/**. See "Thank-you page" below. |
+| (page load) | Any page | Meta Pixel – Base (website pixel 4126422144254829, PageView), Meta - CTWA CRM Base (Vietnam) (Glabol CTWA – CRM 963901896777793, PageView), GA4 page_view, Google Ads tag and remarketing |
+| `form_start` | First tap on "Get my Vietnam plan" | Meta - FormStart (Vietnam) |
+| `whatsapp_click` (`wa_location`) | Any WhatsApp button | Meta - Contact WhatsApp (Vietnam). The container's own "Click URL contains wa.me" link trigger also fires GA4 watsapp_click and the Google Ads outbound click. |
+| `lead_form_submit` (`lead_id`, `user_data.phone_number`, `lead_score`, `ad_version`) | Thank-you page, once per lead | Meta Pixel – Lead (goes to both datasets), GA4 generate_lead, Google Ads user-provided data |
+| `thank_you_page_view` (`lead_id`, `transaction_id`) | Thank-you page, once per lead | Google Ads conversion |
 
-**Click ID (fbclid):** when the link has `fbclid`, the page sets the `_fbc` cookie (`fb.1.<ms>.<fbclid>`, on .glabol.com, 90 days) unless the pixel already did. Every Meta event, Lead included, then carries the click ID. The CRM gets `fbclid`/`fbc` (see Leads), and so does the Sheet (fbclid and fbc columns).
+**Vietnam-only GTM items** (added 1 Nov 2026). Each one checks Page Hostname equals vietnam-trip.glabol.com:
 
-## Thank-you page (from 1 Nov 2026)
+- Triggers: "VN - Page View (vietnam-trip)", "VN - CE form_start", "VN - CE whatsapp_click".
+- Tags:
+  - **"Meta - CTWA CRM Base (Vietnam)"**: inits 963901896777793 and sends its PageView with `trackSingle`. It fires on Page View, after the container's Meta Pixel – Base, which fires on Initialization. That way the Lead, FormStart and Contact that follow go to both datasets.
+  - **"Meta - FormStart (Vietnam)"**
+  - **"Meta - Contact WhatsApp (Vietnam)"**
 
-`thank-you/index.html` is its own page. It has the same design as the old in-page thank-you screen: name, trip summary, review and a WhatsApp button pre-filled with their details.
+**Advanced matching:** the form saves `bk_lead` (`{ id, firstName, phoneDigits }`) in sessionStorage, in the same format as the Kashmir and Himachal pages. Both Meta base tags read it on thank-you pages.
+
+**Click ID (fbclid):** when the link has `fbclid`, the page sets the `_fbc` cookie (`fb.1.<ms>.<fbclid>`, on .glabol.com, 90 days) unless the pixel already did. The CRM gets `fbclid`/`fbc` (see Leads), and so does the Sheet.
+
+## Thank-you page
+
+`thank-you/index.html` is its own page, with the same design as the old in-page thank-you screen: name, trip summary, review and a WhatsApp button pre-filled with their details.
 
 **How the visitor gets there:**
 
 - Once the lead is in, the form sends the visitor to `thank-you/?eid=<event ID>&v=<ad tag>`.
 - That happens as soon as the CRM has the lead. If the CRM failed all 3 tries, it happens once the Sheet has the lead.
-- The visitor never leaves while the CRM is still trying, so leaving can't cut it off.
+- The visitor never leaves while the CRM is still trying.
 
-**The Meta Lead fires there.** The thank-you page:
+**What the thank-you page pushes.** It pushes `lead_form_submit` and `thank_you_page_view` once per event ID. Pushed IDs are kept in localStorage `glabol_vn_fired`. A reload, the back button, or opening /thank-you/ directly pushes nothing, so to test the Lead, submit the form.
 
-1. Inits both datasets (`PIXEL_IDS` at the top of the thank-you page, which must match index.html) with the SHA-256 hashed phone (91…), first name, last name, country `in` and external_id.
-2. Sends PageView.
-3. Sends `fbq('track', 'Lead', {content_name, content_category, lead_score, ad_version}, {eventID})`. The event ID is the same one the Sheet row has.
+**What the link carries.** Only the event ID and the ad tag are in the link. The name, summary and WhatsApp text are passed in sessionStorage (`glabol_vn_lead`).
 
-**What the link carries.** The link holds only the event ID and ad tag. The name, summary, WhatsApp text and hashed data are passed in `sessionStorage` (`glabol_vn_lead`), so nothing personal is in the URL.
-
-**Lead fires once per event ID.** Fired IDs are kept in `localStorage` (`glabol_vn_fired`). A reload, the back button, or opening /thank-you/ directly without `?eid` sends PageView only. To test the Lead, submit the form.
-
-**If an ad blocker stops fbevents.js,** the page sends the Lead as a direct pixel request instead.
-
-**Before 1 Nov 2026:**
-
-- The Lead fired on the form page itself, first as a direct pixel request and then through `fbq('trackSingle')`.
-- The in-page thank-you screen is still used, with no Lead, in preview mode or when a lead couldn't be sent at all.
-
-**Custom conversion idea:** use event Lead with URL contains `vietnam-trip.glabol.com/thank-you`. It's an easy rule, and it skips the CRM's own server "Lead" events in the Glabol CTWA – CRM dataset.
+**Custom conversion idea:** event Lead, URL contains `vietnam-trip.glabol.com/thank-you`. In the Glabol CTWA – CRM dataset, this leaves out the CRM's own server "Lead" events.
 
 ## WhatsApp
 
