@@ -19,7 +19,20 @@ The settings are in the `window.GLABOL_FORM` block near the top of `index.html`:
 
 ## What gets sent
 
-There are nine questions, matching the Vietnam instant form:
+There are nine questions. On 1 Nov 2026 the owner narrowed four of them to filter out leads that don't fit:
+
+- **Travel month:** Nov 2026, Dec 2026, Jan 2027, Feb–Mar 2027. "Apr 2027 or later" and "Not decided yet" were removed.
+- **Travellers:** 2, 3–5, 6 or more. "Just me" was removed, since solo trips aren't wanted.
+- **Budget per person:** ₹40,000–₹60,000, ₹60,000–₹90,000, Above ₹90,000. "Under ₹40,000" was removed.
+- **Passport:** Yes or No.
+
+**Lead score:**
+
+- "Just checking prices" makes a lead cold.
+- Otherwise each of these misses counts once: a month after Jan 2027, passport No, or booking in 1–3 months.
+- No misses is hot, one is warm, and two or more is cold.
+
+All nine questions:
 
 - Travel month
 - Travellers

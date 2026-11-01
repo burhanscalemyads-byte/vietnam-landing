@@ -562,14 +562,14 @@ a{color:inherit}
   var QUESTIONS = [
     { id:"travel_month", type:"choice", title:"When are you planning to go?",
       help:"Pick the closest month. A rough plan is fine.",
-      options:["Nov 2026","Dec 2026","Jan 2027","Feb–Mar 2027","Apr 2027 or later","Not decided yet"] },
+      options:["Nov 2026","Dec 2026","Jan 2027","Feb–Mar 2027"] },
     { id:"travellers", type:"choice", title:"How many people are travelling?",
-      options:["Just me","2","3–5","6 or more"] },
+      options:["2","3–5","6 or more"] },
     { id:"budget_pp", type:"choice", title:"What's your budget per person?",
       help:"Not counting international flights. Our 5N/6D trips start at ₹40,999 per person.",
-      options:["Under ₹40,000","₹40,000–₹60,000","₹60,000–₹90,000","Above ₹90,000"] },
+      options:["₹40,000–₹60,000","₹60,000–₹90,000","Above ₹90,000"] },
     { id:"passport", type:"choice", title:"Does everyone have a passport valid for 6+ months?",
-      options:["Yes, all set","Someone is applying or renewing","Not yet"] },
+      options:["Yes","No"] },
     { id:"booking", type:"choice", title:"When do you want to book?",
       options:["This week","This month","In 1–3 months","Just checking prices"] },
     { id:"from_city", type:"choice", title:"Where will you fly from?",
@@ -829,15 +829,16 @@ a{color:inherit}
     }
   });
 
-  /* ---------- Scoring (same rules as the Vietnam instant form) ---------- */
+  /* ---------- Scoring ----------
+     1 Nov 2026: the form no longer offers solo travel, budgets under ₹40,000, months after Feb–Mar 2027
+     or "not decided", and the passport question is Yes / No. "No" counts as one strike rather than cold,
+     because it covers people who are applying or renewing. */
   function score(a){
     var travelOk = ["Nov 2026","Dec 2026","Jan 2027"].indexOf(a.travel_month) > -1;
-    var budgetOk = !!a.budget_pp && a.budget_pp !== "Under ₹40,000";
-    var passOk = a.passport === "Yes, all set";
+    var budgetOk = !!a.budget_pp;
+    var passOk = a.passport === "Yes";
     var bookOk = ["This week","This month"].indexOf(a.booking) > -1;
-    var cold = a.budget_pp === "Under ₹40,000" || a.passport === "Not yet" ||
-      a.booking === "Just checking prices" ||
-      (a.travel_month === "Not decided yet" && a.booking === "In 1–3 months");
+    var cold = a.booking === "Just checking prices";
     if (cold) return "cold";
     var off = [travelOk, budgetOk, passOk, bookOk].filter(function(x){ return !x; }).length;
     return off === 0 ? "hot" : off === 1 ? "warm" : "cold";
