@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thank you · Vietnam 5N/6D · Glabol</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2B1510">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script>
+/* ============================================================
+   Vietnam landing page: thank-you page (vietnam-trip.glabol.com/thank-you/)
+   ------------------------------------------------------------
+   The form sends visitors here once their lead has reached the CRM or the
+   Sheet, with ?eid=<event ID>. This page fires the Meta Lead.
+
+   - PIXEL_IDS must match index.html.
+   - Lead fires once per event ID: a reload, the back button or a direct
+     visit without ?eid sends PageView only.
+   - The form leaves the hashed phone/name, the visitor's first name and a
+     trip summary in sessionStorage ("glabol_vn_lead"). Nothing personal goes
+     in the link.
+   ============================================================ */
+window.GLABOL_TY = {
+  PIXEL_IDS: ["963901896777793", "4126422144254829"],   // Glabol CTWA – CRM, Glabol_SMA_MetaPixel
+  WHATSAPP_NUMBER: "919203405171"
+};
+
+(function(){
+  var CFG = window.GLABOL_TY;
+  function get(store, key){ try { return window[store].getItem(key); } catch (e) { return null; } }
+  function set(store, key, val){ try { window[store].setItem(key, val); } catch (e) {} }
+
+  var q; try { q = new URLSearchParams(location.search); } catch (e) { q = { get: function(){ return null; } }; }
+  var eid = (q.get("eid") || "").replace(/[^\w.-]/g, "").slice(0, 80);
+  var data = null;
+  try { data = JSON.parse(get("sessionStorage", "glabol_vn_lead") || "null"); } catch (e) {}
+  if (data && (!data.eid || (eid && data.eid !== eid) || Date.now() - (data.t || 0) > 6 * 3600e3)) data = null;
+  if (!eid && data) eid = data.eid;
+
+  var fired = [];
+  try { fired = JSON.parse(get("localStorage", "glabol_vn_fired") || "[]"); } catch (e) {}
+  if (!Array.isArray(fired)) fired = [];
+  var sendLead = !!eid && fired.indexOf(eid) === -1;
+
+  var ud = (data && data.ud) || {};
+  var custom = (data && data.custom) || { content_name: "Vietnam 5N6D", content_category: "Vietnam", ad_version: (q.get("v") || "not tagged") };
+  window.__glabolTy = { eid: eid, data: data, sendLead: sendLead };
+
+  function markFired(){
+    if (!sendLead) return;
+    fired.push(eid);
+    set("localStorage", "glabol_vn_fired", JSON.stringify(fired.slice(-30)));
+  }
+  function cookie(name){
+    var m = document.cookie.match(new RegExp("(?:^|; )" + name + "=([^;]*)"));
+    return m ? decodeURIComponent(m[1]) : "";
+  }
+  // Used only if fbevents.js can't load (ad blocker): send the Lead as a direct pixel request.
+  function directLead(){
+    if (!sendLead) return;
+    (CFG.PIXEL_IDS || []).forEach(function(id){
+      var p = new URLSearchParams({ id: id, ev: "Lead", eid: eid, dl: location.href, rl: document.referrer || "", ts: String(Date.now()) });
+      Object.keys(ud).forEach(function(k){ if (ud[k]) p.append("ud[" + k + "]", ud[k]); });
+      Object.keys(custom).forEach(function(k){ p.append("cd[" + k + "]", custom[k]); });
+      if (cookie("_fbp")) p.append("fbp", cookie("_fbp"));
+      if (cookie("_fbc")) p.append("fbc", cookie("_fbc"));
+      new Image(1, 1).src = "https://www.facebook.com/tr/?" + p.toString();
+    });
+    markFired();
+  }
+
+  var ids = CFG.PIXEL_IDS || [];
+  if (!ids.length) return;
+  // Meta Pixel base code, with an error handler for the fallback above.
+  var n = window.fbq = function(){ n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+  if (!window._fbq) window._fbq = n;
+  n.push = n; n.loaded = true; n.version = "2.0"; n.queue = [];
+  var t = document.createElement("script");
+  t.async = true;
+  t.src = "https://connect.facebook.net/en_US/fbevents.js";
+  t.onerror = directLead;
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(t, s);
+
+  // Hashed phone, first and last name, country and external_id from the form go in at init.
+  ids.forEach(function(id){ fbq("init", id, ud); });
+  fbq("track", "PageView");
+  if (sendLead) {
+    fbq("track", "Lead", custom, { eventID: eid });
+    markFired();
+  }
+})();
+</script>
+
+<style>
+:root{
+  --ink:#2B1510; --ink-2:#361C15; --ink-3:#4A2A20;
+  --lantern:#C8331E; --lantern-dark:#A92713; --amber:#F08A24;
+  --muted:rgba(255,255,255,.74); --faint:rgba(255,255,255,.52);
+  --line-strong:rgba(255,255,255,.42); --glass:rgba(255,255,255,.07);
+  --pad:clamp(16px,4.2vw,56px);
+  --head:"Inter Tight", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{
+  background:
+    radial-gradient(900px 520px at 0% -8%, rgba(240,138,36,.16), transparent 62%),
+    radial-gradient(760px 520px at 100% 108%, rgba(200,51,30,.24), transparent 60%),
+    var(--ink);
+  background-attachment:fixed;
+  color:#fff;font-family:var(--body);font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+img{display:block;max-width:100%}
+a{color:inherit}
+.app{min-height:100vh;min-height:100dvh;display:grid;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1000px){.app{grid-template-columns:minmax(0,1fr) minmax(380px,42%)}}
+.form-side{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px var(--pad) 0}
+.logo{height:22px;width:auto}
+@media (min-width:700px){.logo{height:26px}}
+.top-right{display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;
+  background:rgba(43,21,16,.28);border:1.5px solid rgba(255,255,255,.35);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  font-family:var(--head);font-weight:600;font-size:13px;letter-spacing:.01em;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%;background:var(--amber);display:block}
+@media (min-width:1000px){#topPill{display:none}}
+.wa-top{display:inline-flex;align-items:center;gap:7px;padding:6px 12px 6px 9px;border-radius:999px;text-decoration:none;color:#fff;
+  background:rgba(37,211,102,.12);border:1.5px solid rgba(37,211,102,.55);font-family:var(--head);font-weight:600;font-size:13px}
+.wa-top:hover{background:rgba(37,211,102,.22)}
+@media (max-width:999px){.wa-top{padding:7px}.wa-top span{display:none}}
+.stage{flex:1;display:flex;align-items:center;padding:20px var(--pad) 56px}
+.done{width:100%;max-width:640px;animation:inUp .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes inUp{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.done{animation:none}}
+.done-badge{width:64px;height:64px;border-radius:50%;background:var(--lantern);display:grid;place-items:center;box-shadow:0 0 0 8px rgba(200,51,30,.18)}
+.done h1{font-family:var(--head);font-weight:600;font-size:clamp(28px,7.4vw,48px);line-height:1.02;letter-spacing:-.035em;margin:22px 0 0;outline:none;text-wrap:balance}
+.done p.lead{font-size:18px;color:rgba(255,255,255,.88);margin:14px 0 0;max-width:46ch}
+.summary{margin:22px 0 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;
+  background:rgba(255,255,255,.14);border-radius:16px;overflow:hidden;max-width:520px}
+.summary div{background:var(--ink-2);padding:12px 14px}
+.summary dt{font-size:12px;color:var(--faint)}
+.summary dd{margin:2px 0 0;font-family:var(--head);font-weight:600;font-size:16px}
+.review{margin:22px 0 0;max-width:520px;background:#fff;color:#1f1f1f;border-radius:18px;padding:16px 18px}
+.review .stars{color:#F4B400;letter-spacing:2px;font-size:15px}
+.review p{margin:6px 0 0;font-size:15px;line-height:1.45}
+.review cite{display:block;margin-top:8px;font-style:normal;font-size:13px;color:#5f6368}
+.wa-btn{display:inline-flex;align-items:center;gap:10px;margin:22px 0 0;padding:14px 22px;border-radius:999px;text-decoration:none;
+  background:#25D366;color:#0b2414;font-family:var(--head);font-weight:700;font-size:17px;box-shadow:0 10px 26px rgba(37,211,102,.28)}
+.wa-btn svg path{fill:#0b2414}
+.wa-btn:hover{background:#20bd5a}
+@media (max-width:999px){.wa-btn{display:flex;justify-content:center;width:100%;min-height:58px}}
+.wa-top:focus-visible,.wa-btn:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
+.photo-side{display:none}
+@media (min-width:1000px){
+  .photo-side{display:block;position:sticky;top:0;height:100vh;height:100dvh;padding:16px 16px 16px 0}
+  .photo-frame{position:relative;height:100%;border-radius:28px;overflow:hidden;background:var(--ink-3)}
+  .photo-frame img{width:100%;height:100%;object-fit:cover;object-position:50% 70%}
+  .photo-frame::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(43,21,16,.35),rgba(43,21,16,0) 26%,rgba(43,21,16,0) 70%,rgba(43,21,16,.6))}
+  .photo-frame .pill{position:absolute;left:18px;top:18px;z-index:2}
+  .photo-chip{position:absolute;left:18px;bottom:18px;z-index:2;font-size:13px;font-weight:500;line-height:1.2;padding:6px 10px;border-radius:999px;
+    background:rgba(43,21,16,.45);border:1px solid rgba(255,255,255,.28);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="form-side">
+    <header class="topbar">
+      <a href="../"><img class="logo" src="../assets/glabol-logo-white.png" alt="Glabol" width="120" height="26"></a>
+      <span class="top-right">
+        <span class="pill" id="topPill"><i></i>Vietnam · 5N/6D</span>
+        <a class="wa-top" id="waTop" href="https://wa.me/919203405171" target="_blank" rel="noopener" aria-label="Chat with Glabol on WhatsApp"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#25D366" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg><span>WhatsApp</span></a>
+      </span>
+    </header>
+
+    <main class="stage">
+      <section class="done" aria-labelledby="doneTitle">
+        <div class="done-badge" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 30 30"><path d="M8 15.5l4.6 4.5L22.5 10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h1 id="doneTitle" tabindex="-1">Thanks. We're on your Vietnam plan.</h1>
+        <p class="lead">Our Vietnam team will call you in the time slot you picked. Keep your dates handy.</p>
+        <dl class="summary" id="summary" hidden></dl>
+        <figure class="review" style="margin-left:0;margin-right:0">
+          <div class="stars" aria-label="5 out of 5 stars">★★★★★</div>
+          <p>“Everything was planned perfectly, making our journey smooth…”</p>
+          <cite>Sunil R. · Google review</cite>
+        </figure>
+        <a class="wa-btn" id="waDone" href="https://wa.me/919203405171" target="_blank" rel="noopener"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#fff" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91A9.86 9.86 0 0 0 12.04 2Zm0 18.15h-.01a8.23 8.23 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.24 8.24 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23Zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.13-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.43h-.48c-.16 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28Z"/></svg>Chat with us on WhatsApp</a>
+      </section>
+    </main>
+  </div>
+
+  <aside class="photo-side" aria-hidden="true">
+    <div class="photo-frame">
+      <picture>
+        <source media="(min-width:1000px)" srcset="../assets/vietnam-golden-bridge-tall.jpg">
+        <img src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt="" width="1000" height="1778">
+      </picture>
+      <span class="pill"><i></i>Vietnam · 5N/6D</span>
+      <span class="photo-chip">Golden Bridge, Ba Na Hills</span>
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+  var CFG = window.GLABOL_TY, info = window.__glabolTy || {}, d = info.data;
+  function esc(v){ return String(v).replace(/[&<>"']/g, function(c){ return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function waLink(text){ return "https://wa.me/" + (CFG.WHATSAPP_NUMBER || "919203405171") + "?text=" + encodeURIComponent(text); }
+  function contact(where){ try { if (window.fbq) fbq("track", "Contact", { content_name: "WhatsApp " + where, content_category: "Vietnam" }); } catch (e) {} }
+
+  var top = document.getElementById("waTop"), btn = document.getElementById("waDone");
+  top.href = waLink("Hi Glabol, I'm interested in the Vietnam 5N/6D trip.");
+  top.addEventListener("click", function(){ contact("top"); });
+  btn.href = waLink(d && d.waText ? d.waText : "Hi Glabol, I just sent my Vietnam trip details.");
+  btn.addEventListener("click", function(){ contact("thank-you"); });
+
+  if (d) {
+    if (d.first) document.getElementById("doneTitle").textContent = "Got it, " + d.first + ". We're on your Vietnam plan.";
+    if (d.rows && d.rows.length) {
+      var sum = document.getElementById("summary");
+      sum.innerHTML = d.rows.map(function(r){ return "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1] || "–") + "</dd></div>"; }).join("");
+      sum.hidden = false;
+    }
+  }
+})();
+</script>
+</body>
+</html>

@@ -84,11 +84,38 @@ Both datasets get the same events:
 | PageView | Page load | |
 | FormStart (custom) | First tap on "Get my Vietnam plan" | Good for retargeting people who started the form and didn't finish |
 | Contact | Tap on any WhatsApp button | `content_name` says which button: top, welcome or thank-you |
-| Lead | The CRM or the Sheet has the lead | Sent through `fbq`, so Meta Pixel Helper and Events Manager → Test events show it. For each dataset, `fbq('init', id, userData)` adds SHA-256 hashed phone (91…), first name, last name, country `in` and external_id (hashed phone), then `fbq('trackSingle', id, 'Lead', …, {eventID})` sends it. The same event ID goes to both datasets and into the Sheet, so a later Conversions API upload can deduplicate. Custom data: `lead_score`, `ad_version`. A submission that didn't reach the CRM or the Sheet sends no Lead. If an ad blocker stopped fbevents.js, the page sends the Lead as a direct pixel request instead. |
+| Lead | Thank-you page loads after a submission | Fires on **vietnam-trip.glabol.com/thank-you/**. See "Thank-you page" below. |
 
 **Click ID (fbclid):** when the link has `fbclid`, the page sets the `_fbc` cookie (`fb.1.<ms>.<fbclid>`, on .glabol.com, 90 days) unless the pixel already did. Every Meta event, Lead included, then carries the click ID. The CRM gets `fbclid`/`fbc` (see Leads), and so does the Sheet (fbclid and fbc columns).
 
-Until 1 Nov 2026 the Lead went only as a direct pixel request. Meta received it (Events Manager shows Lead from vietnam-trip.glabol.com on 31 Oct in both datasets), but Pixel Helper and Test events couldn't see it. Calling `fbq('init')` again with user data does add it to the next event (checked 1 Nov 2026 on the live page).
+## Thank-you page (from 1 Nov 2026)
+
+`thank-you/index.html` is its own page. It has the same design as the old in-page thank-you screen: name, trip summary, review and a WhatsApp button pre-filled with their details.
+
+**How the visitor gets there:**
+
+- Once the lead is in, the form sends the visitor to `thank-you/?eid=<event ID>&v=<ad tag>`.
+- That happens as soon as the CRM has the lead. If the CRM failed all 3 tries, it happens once the Sheet has the lead.
+- The visitor never leaves while the CRM is still trying, so leaving can't cut it off.
+
+**The Meta Lead fires there.** The thank-you page:
+
+1. Inits both datasets (`PIXEL_IDS` at the top of the thank-you page, which must match index.html) with the SHA-256 hashed phone (91…), first name, last name, country `in` and external_id.
+2. Sends PageView.
+3. Sends `fbq('track', 'Lead', {content_name, content_category, lead_score, ad_version}, {eventID})`. The event ID is the same one the Sheet row has.
+
+**What the link carries.** The link holds only the event ID and ad tag. The name, summary, WhatsApp text and hashed data are passed in `sessionStorage` (`glabol_vn_lead`), so nothing personal is in the URL.
+
+**Lead fires once per event ID.** Fired IDs are kept in `localStorage` (`glabol_vn_fired`). A reload, the back button, or opening /thank-you/ directly without `?eid` sends PageView only. To test the Lead, submit the form.
+
+**If an ad blocker stops fbevents.js,** the page sends the Lead as a direct pixel request instead.
+
+**Before 1 Nov 2026:**
+
+- The Lead fired on the form page itself, first as a direct pixel request and then through `fbq('trackSingle')`.
+- The in-page thank-you screen is still used, with no Lead, in preview mode or when a lead couldn't be sent at all.
+
+**Custom conversion idea:** use event Lead with URL contains `vietnam-trip.glabol.com/thank-you`. It's an easy rule, and it skips the CRM's own server "Lead" events in the Glabol CTWA – CRM dataset.
 
 ## WhatsApp
 
