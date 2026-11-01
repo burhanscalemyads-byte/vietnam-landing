@@ -173,8 +173,14 @@ This uses the same setup as kashmir.glabol.com and himachal.glabol.com:
 
 Every push to `main` goes live in about a minute. GitHub Pages serves every file in the repo publicly; nothing here is secret beyond the CRM key, which is visible in any browser-side page anyway.
 
-When you link the page from Meta ads, put this in each ad's URL parameters:
+When you link the page from Meta ads, set **Website URL** to `https://vietnam-trip.glabol.com/?v=<ad tag>`. Then put this in the ad's **URL parameters** (Ad level → Tracking):
 
 ```
-utm_source=facebook&utm_medium=paid_social&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}
+utm_source=facebook&utm_medium=paid_social&utm_campaign={{campaign.name}}&utm_term={{adset.name}}&utm_content={{ad.name}}&utm_id={{campaign.id}}&campaign_id={{campaign.id}}&adset_id={{adset.id}}&ad_id={{ad.id}}&placement={{placement}}
 ```
+
+**Where the values go:**
+
+- **Sheet:** campaign_id, adset_id and ad_id land in the Campaign ID, Adset ID and Ad ID columns. The UTMs go in Source, Medium, Campaign and Content. Placement shows in the Page URL.
+- **CRM:** the first try also sends `campaign_id`/`campaignId`, `adset_id`/`adsetId`, `ad_id`/`adId`, `utm_source`, `utm_campaign`, `fbclid` and `fbc`. If the CRM refuses them, it gets only the usual fields on the next try.
+- **GA4:** it reads `utm_id` as the campaign ID.

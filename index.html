@@ -1023,7 +1023,9 @@ a{color:inherit}
     return "Interested in " + (CFG.DESTINATION || "Vietnam") + " package. Travel month: " + (a.travel_month || "-") +
       ". Travellers: " + (a.travellers || "-") + ".";
   }
-  // withClickId adds fbclid and fbc (Meta click ID) as extra fields next to the usual ones.
+  // withClickId adds extra fields next to the usual ones: fbclid and fbc (Meta click ID), and the Meta
+  // campaign, ad set and ad IDs from the ad's URL parameters. The CRM's reply has campaignId / adId fields,
+  // so the IDs go both as campaign_id / adset_id / ad_id and as campaignId / adsetId / adId.
   function crmPost(p, ms, withClickId){
     var ctrl = window.AbortController ? new AbortController() : null;
     var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, ms) : null;
@@ -1036,7 +1038,13 @@ a{color:inherit}
       host: location.hostname,
       source: crmSource()
     };
-    if (withClickId) { body.fbclid = p.tracking.fbclid || ""; body.fbc = p.tracking.fbc || ""; }
+    if (withClickId) {
+      body.fbclid = p.tracking.fbclid || ""; body.fbc = p.tracking.fbc || "";
+      body.campaign_id = body.campaignId = params.campaign_id || "";
+      body.adset_id = body.adsetId = params.adset_id || "";
+      body.ad_id = body.adId = params.ad_id || "";
+      body.utm_source = p.tracking.utm_source || ""; body.utm_campaign = p.tracking.utm_campaign || "";
+    }
     return fetch(CFG.CRM_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-api-key": CFG.CRM_API_KEY || "" },
@@ -1056,14 +1064,14 @@ a{color:inherit}
   }
   // Up to 3 tries, 1.5 s and 4 s apart, when the CRM is down, slow, busy (5xx, 429) or unreachable.
   // A 4xx reply (bad key, bad data) won't change on a retry, so that stops at once.
-  // When the visitor came from a Meta ad, the first try also carries fbclid and fbc. If the CRM refuses
-  // that try for any reason, the next tries send only the usual fields, so the extra fields can never
-  // cost a lead.
+  // When the visitor came from a Meta ad, the first try also carries fbclid, fbc and the campaign, ad set
+  // and ad IDs. If the CRM refuses that try for any reason, the next tries send only the usual fields, so
+  // the extra fields can never cost a lead.
   // Resolves to "Added, lead #10965"; rejects with every error if all tries fail (logged in the console).
   var CRM_WAITS = [0, 1500, 4000];
   function postToCRM(p){
     var errors = [];
-    var hasClickId = !!(p.tracking.fbclid || p.tracking.fbc);
+    var hasClickId = !!(p.tracking.fbclid || p.tracking.fbc || params.campaign_id || params.adset_id || params.ad_id);
     function attempt(n){
       var withClickId = hasClickId && n === 0;
       return wait(CRM_WAITS[n]).then(function(){ return crmPost(p, 8000, withClickId); }).then(function(id){
